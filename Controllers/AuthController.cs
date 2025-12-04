@@ -15,73 +15,108 @@ namespace Semestralka.Controllers
     public class AuthController : ControllerBase
     {
         private readonly CalendarDbContext _db;
-        private readonly IConfiguration _config;
 
-        public AuthController(CalendarDbContext db, IConfiguration config)
+        private const string JwtKey = "THIS_IS_THE_FINAL_TEST_KEY_1234567890_ABCDEF_0987654321";
+
+        public AuthController(CalendarDbContext db)
         {
             _db = db;
-            _config = config;
         }
 
+        // ===========================
         // REGISTER
+        // ===========================
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
-            if (await _db.Users.AnyAsync(x => x.Email == dto.Email))
-                return BadRequest(new { message = "Email already exists" });
+            if (string.IsNullOrWhiteSpace(dto.Email))
+                return BadRequest(new { message = "Email is required." });
+
+            var email = dto.Email.Trim().ToLower();
+
+            if (!email.Contains("@"))
+                return BadRequest(new { message = "Invalid email format." });
+
+            if (await _db.Users.AnyAsync(x => x.Email == email))
+                return Conflict(new { message = "Email already exists." });
+
+            if (dto.Password == null || dto.Password.Length < 6)
+                return BadRequest(new { message = "Password must be at least 6 characters." });
 
             var user = new User
             {
                 Id = Guid.NewGuid(),
-                Email = dto.Email,
+                Email = email,
                 FullName = dto.FullName,
+                TimeZone = dto.TimeZone,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
             };
 
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
 
-            return Ok(new { message = "User registered successfully" });
+            return Ok(new { message = "User created successfully." });
         }
 
-        // LOGIN
+
+        // ===========================
+        // LOGIN + SESSION
+        // ===========================
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
         {
-            var user = await _db.Users.SingleOrDefaultAsync(x => x.Email == dto.Email);
+            if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
+                return BadRequest(new { message = "Email and password are required." });
+
+            var email = dto.Email.Trim().ToLower();
+
+            var user = await _db.Users.SingleOrDefaultAsync(x => x.Email == email);
             if (user == null)
-                return Unauthorized(new { message = "Invalid email or password" });
+                return Unauthorized(new { message = "Invalid credentials." });
 
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-                return Unauthorized(new { message = "Invalid email or password" });
+                return Unauthorized(new { message = "Invalid credentials." });
 
-            var token = GenerateJwt(user);
+            var token = GenerateToken(user);
+
+            // 🔥 Store user info in session for MVC layout
+            HttpContext.Session.SetString("userid", user.Id.ToString());
+            HttpContext.Session.SetString("email", user.Email);
+            HttpContext.Session.SetString("fullname", user.FullName ?? "Uživatel");
 
             return Ok(new
             {
                 token,
-                user = new { user.Id, user.Email, user.FullName }
+                user = new
+                {
+                    user.Id,
+                    user.Email,
+                    user.FullName,
+                    user.TimeZone
+                }
             });
         }
 
-        private string GenerateJwt(User user)
+
+        // ===========================
+        // JWT CREATOR
+        // ===========================
+        private string GenerateToken(User user)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim("fullname", user.FullName ?? "")
+                new Claim("userid", user.Id.ToString()),
+                new Claim("email", user.Email)
             };
 
             var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(6),
-                signingCredentials: creds);
+                expires: DateTime.UtcNow.AddHours(8),
+                signingCredentials: creds
+            );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

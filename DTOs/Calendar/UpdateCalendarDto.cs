@@ -1,6 +1,6 @@
-namespace Semestralka.DTOs.Calendar
+namespace Semestralka.DTOs
 {
-    public class UpdateCalendarDto
+    public class CalendarUpdateDto
     {
         public string Title { get; set; } = null!;
         public string? Color { get; set; }

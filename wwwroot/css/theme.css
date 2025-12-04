@@ -1,0 +1,38 @@
+:root {
+    --purple: #8b5cf6;
+    --purple-dark: #7c3aed;
+    --grey-light: #f3f5f9;
+    --sidebar-bg: #ffffff;
+    --radius: 14px;
+    --font: 'Inter', sans-serif;
+}
+
+body {
+    background: var(--grey-light);
+    font-family: var(--font);
+    color: #333;
+}
+
+.text-purple {
+    color: var(--purple);
+}
+
+.btn-purple {
+    background: var(--purple);
+    color: white;
+    border-radius: 10px;
+    font-weight: 500;
+}
+.btn-purple:hover {
+    background: var(--purple-dark);
+}
+
+.btn-outline-purple {
+    border: 1px solid var(--purple);
+    color: var(--purple);
+    border-radius: 10px;
+}
+.btn-outline-purple:hover {
+    background: var(--purple);
+    color: white;
+}

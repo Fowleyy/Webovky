@@ -10,6 +10,7 @@ namespace Semestralka.Models
         public string PasswordHash { get; set; } = null!;
         public string? FullName { get; set; }
         public string TimeZone { get; set; } = "Europe/Prague";
+        public string? AvatarPath { get; set; } = "/avatars/default.png";
 
         public ICollection<Calendar> Calendars { get; set; } = new List<Calendar>();
     }

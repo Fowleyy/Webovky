@@ -1,0 +1,60 @@
+@model Semestralka.Models.User
+
+@{
+    ViewData["Title"] = "Nastavení";
+}
+
+<h2 class="fw-bold mb-4">Nastavení účtu</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form method="post" enctype="multipart/form-data" action="/settings/update" class="settings-form">
+
+    <!-- Profilovka -->
+    <div class="mb-4">
+        <label class="fw-bold">Profilová fotka</label>
+        <div class="d-flex align-items-center gap-3 mt-2">
+            <img src="@Model.AvatarPath" class="avatar-large" />
+
+            <input type="file" name="avatarUpload" accept="image/*" class="form-control" style="max-width:300px;">
+        </div>
+    </div>
+
+    <!-- Jméno -->
+    <div class="mb-3">
+        <label class="fw-bold">Jméno</label>
+        <input type="text" name="FullName" value="@Model.FullName" class="form-control" required />
+    </div>
+
+    <!-- Email -->
+    <div class="mb-3">
+        <label class="fw-bold">Email</label>
+        <input type="email" name="Email" value="@Model.Email" class="form-control" required />
+    </div>
+
+    <!-- Heslo -->
+    <div class="mb-4">
+        <label class="fw-bold">Nové heslo (volitelné)</label>
+        <input type="password" name="newPassword" class="form-control" placeholder="Zadat nové heslo..." />
+    </div>
+
+    <button class="btn btn-purple">Uložit změny</button>
+
+</form>
+
+<style>
+    .settings-form {
+        max-width: 600px;
+    }
+
+    .avatar-large {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #ddd;
+    }
+</style>

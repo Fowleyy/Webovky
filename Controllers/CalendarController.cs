@@ -2,52 +2,53 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Semestralka.Data;
-using Semestralka.DTOs.Calendar;
+using Semestralka.DTOs;
 using Semestralka.Models;
-using System.Security.Claims;
 
 namespace Semestralka.Controllers
 {
     [ApiController]
-    [Route("api/calendars")]
     [Authorize]
-    public class CalendarController : ControllerBase
+    [Route("api/calendars")]
+    public class CalendarsController : ControllerBase
     {
         private readonly CalendarDbContext _db;
 
-        public CalendarController(CalendarDbContext db)
+        public CalendarsController(CalendarDbContext db)
         {
             _db = db;
         }
 
-        private Guid GetUserId()
-        {
-            return Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-        }
+        private Guid UserId => Guid.Parse(User.FindFirst("userid")!.Value);
 
-        // GET: api/calendars
+        // GET all calendars for logged user
         [HttpGet]
-        public async Task<IActionResult> GetUserCalendars()
+        public async Task<IActionResult> GetMyCalendars()
         {
-            var userId = GetUserId();
-
             var calendars = await _db.Calendars
-                .Where(c => c.OwnerId == userId)
+                .Where(c => c.OwnerId == UserId)
+                .Select(c => new {
+                    c.Id,
+                    c.Title,
+                    c.Color,
+                    c.Visibility
+                })
                 .ToListAsync();
 
             return Ok(calendars);
         }
 
-        // POST: api/calendars
+        // CREATE
         [HttpPost]
-        public async Task<IActionResult> CreateCalendar(CreateCalendarDto dto)
+        public async Task<IActionResult> Create(CalendarCreateDto dto)
         {
-            var userId = GetUserId();
+            if (string.IsNullOrWhiteSpace(dto.Title))
+                return BadRequest(new { message = "Calendar title is required." });
 
             var calendar = new Calendar
             {
                 Id = Guid.NewGuid(),
-                OwnerId = userId,
+                OwnerId = UserId,
                 Title = dto.Title,
                 Color = dto.Color,
                 Visibility = dto.Visibility
@@ -56,55 +57,43 @@ namespace Semestralka.Controllers
             _db.Calendars.Add(calendar);
             await _db.SaveChangesAsync();
 
-            return Ok(calendar);
+            return Ok(new { calendar.Id });
         }
 
-        // GET: api/calendars/{id}
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetCalendar(Guid id)
-        {
-            var userId = GetUserId();
-            var calendar = await _db.Calendars.FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
-
-            if (calendar == null)
-                return NotFound();
-
-            return Ok(calendar);
-        }
-
-        // PUT: api/calendars/{id}
+        // UPDATE
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCalendar(Guid id, UpdateCalendarDto dto)
+        public async Task<IActionResult> Update(Guid id, CalendarUpdateDto dto)
         {
-            var userId = GetUserId();
-            var calendar = await _db.Calendars.FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
-
+            var calendar = await _db.Calendars.FirstOrDefaultAsync(c => c.Id == id);
             if (calendar == null)
                 return NotFound();
+
+            if (calendar.OwnerId != UserId)
+                return Unauthorized(new { message = "This calendar does not belong to you." });
 
             calendar.Title = dto.Title;
             calendar.Color = dto.Color;
             calendar.Visibility = dto.Visibility;
 
             await _db.SaveChangesAsync();
-
-            return Ok(calendar);
+            return Ok(new { message = "Updated." });
         }
 
-        // DELETE: api/calendars/{id}
+        // DELETE
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCalendar(Guid id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var userId = GetUserId();
-            var calendar = await _db.Calendars.FirstOrDefaultAsync(c => c.Id == id && c.OwnerId == userId);
-
+            var calendar = await _db.Calendars.FirstOrDefaultAsync(c => c.Id == id);
             if (calendar == null)
                 return NotFound();
+
+            if (calendar.OwnerId != UserId)
+                return Unauthorized(new { message = "This calendar does not belong to you." });
 
             _db.Calendars.Remove(calendar);
             await _db.SaveChangesAsync();
 
-            return Ok(new { message = "Deleted" });
+            return Ok(new { message = "Deleted." });
         }
     }
 }

@@ -1,9 +1,9 @@
-namespace Semestralka.DTOs.Calendar
+namespace Semestralka.DTOs
 {
-    public class CreateCalendarDto
+    public class CalendarCreateDto
     {
         public string Title { get; set; } = null!;
         public string? Color { get; set; }
-        public string Visibility { get; set; } = "private"; // "private", "public", "shared"
+        public string Visibility { get; set; } = "private";
     }
 }

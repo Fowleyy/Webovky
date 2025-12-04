@@ -1,6 +1,6 @@
-namespace Semestralka.DTOs.Event
+namespace Semestralka.DTOs
 {
-    public class UpdateEventDto
+    public class EventUpdateDto
     {
         public string Title { get; set; } = null!;
         public string? Description { get; set; }

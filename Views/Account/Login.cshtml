@@ -1,0 +1,27 @@
+@{
+    Layout = "_LoginLayout";
+    ViewData["Title"] = "Přihlášení";
+}
+
+<div class="card p-4 shadow-sm">
+    <h3 class="mb-3">Přihlášení</h3>
+
+    @if (ViewData["Error"] != null)
+    {
+        <div class="alert alert-danger">@ViewData["Error"]</div>
+    }
+
+    <form method="post">
+        <div class="mb-3">
+            <label>Email:</label>
+            <input name="email" class="form-control" type="email" required />
+        </div>
+
+        <div class="mb-3">
+            <label>Heslo:</label>
+            <input name="password" class="form-control" type="password" required />
+        </div>
+
+        <button class="btn btn-primary w-100">Přihlásit se</button>
+    </form>
+</div>

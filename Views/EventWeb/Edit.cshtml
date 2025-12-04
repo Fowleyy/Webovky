@@ -1,0 +1,50 @@
+@model Semestralka.Models.Event
+
+@{
+    ViewData["Title"] = "Upravit událost";
+}
+
+<h2>Upravit událost</h2>
+
+@if (ViewData["Error"] != null)
+{
+    <div class="alert alert-danger">@ViewData["Error"]</div>
+}
+
+<form method="post">
+    <div class="mb-3">
+        <label>Název</label>
+        <input class="form-control" name="Title" value="@Model.Title" required />
+    </div>
+
+    <div class="mb-3">
+        <label>Popis</label>
+        <textarea class="form-control" name="Description">@Model.Description</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label>Začátek</label>
+        <input type="datetime-local" class="form-control"
+               name="StartTime"
+               value="@Model.StartTime.ToLocalTime().ToString("yyyy-MM-ddTHH:mm")" />
+    </div>
+
+    <div class="mb-3">
+        <label>Konec</label>
+        <input type="datetime-local" class="form-control"
+               name="EndTime"
+               value="@Model.EndTime.ToLocalTime().ToString("yyyy-MM-ddTHH:mm")" />
+    </div>
+
+    <div class="mb-3">
+        <label>Místo</label>
+        <input class="form-control" name="Location" value="@Model.Location" />
+    </div>
+
+    <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" name="IsAllDay" @(Model.IsAllDay ? "checked" : "") />
+        <label class="form-check-label">Celý den</label>
+    </div>
+
+    <button class="btn btn-primary">Uložit změny</button>
+</form>

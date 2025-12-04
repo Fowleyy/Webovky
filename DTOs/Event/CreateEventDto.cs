@@ -1,6 +1,6 @@
-namespace Semestralka.DTOs.Event
+namespace Semestralka.DTOs
 {
-    public class CreateEventDto
+    public class EventCreateDto
     {
         public Guid CalendarId { get; set; }
         public string Title { get; set; } = null!;

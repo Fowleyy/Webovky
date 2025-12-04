@@ -2,15 +2,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Semestralka.Data;
-using Semestralka.DTOs.Event;
+using Semestralka.DTOs;
 using Semestralka.Models;
-using System.Security.Claims;
 
 namespace Semestralka.Controllers
 {
     [ApiController]
     [Route("api/events")]
-    [Authorize]
     public class EventsController : ControllerBase
     {
         private readonly CalendarDbContext _db;
@@ -20,61 +18,66 @@ namespace Semestralka.Controllers
             _db = db;
         }
 
-        private Guid GetUserId()
-        {
-            return Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-        }
-
-        // GET: api/events?calendarId=xxxx
+        // ============================================================
+        // 🟢 GET EVENTS (now supports SESSION + JWT)
+        // GET /api/events?calendarId=xxx
+        // ============================================================
         [HttpGet]
+        [AllowAnonymous] // authentication handled manually below
         public async Task<IActionResult> GetEvents([FromQuery] Guid calendarId)
         {
-            var userId = GetUserId();
+            Guid currentUserId;
 
-            // ověř vlastnictví kalendáře
-            var calendar = await _db.Calendars.FirstOrDefaultAsync(c => c.Id == calendarId && c.OwnerId == userId);
-            if (calendar == null)
-                return Unauthorized(new { message = "You do not own this calendar" });
+            // 🔥 1) Try SESSION auth first (MVC UI)
+            var sessionUser = HttpContext.Session.GetString("userid");
+            if (sessionUser != null)
+            {
+                currentUserId = Guid.Parse(sessionUser);
+            }
+            else
+            {
+                // 🔥 2) If no session, try JWT auth (API)
+                if (!User.Identity?.IsAuthenticated ?? true)
+                    return Unauthorized(new { message = "Unauthorized" });
 
+                currentUserId = Guid.Parse(User.FindFirst("userid")!.Value);
+            }
+
+            // 🔥 3) Verify the calendar belongs to this user
+            var owns = await _db.Calendars.AnyAsync(c => c.Id == calendarId && c.OwnerId == currentUserId);
+            if (!owns)
+                return Unauthorized(new { message = "You do not own this calendar." });
+
+            // 🔥 4) Return events
             var events = await _db.Events
                 .Where(e => e.CalendarId == calendarId)
+                .Select(e => new {
+                    id = e.Id,
+                    title = e.Title,
+                    start = e.StartTime,
+                    end = e.EndTime
+                })
                 .ToListAsync();
 
             return Ok(events);
         }
 
-        // GET: api/events/{id}
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetEvent(Guid id)
-        {
-            var userId = GetUserId();
 
-            var e = await _db.Events
-                .Include(x => x.Participants)
-                .Include(x => x.Calendar)
-                .FirstOrDefaultAsync(x => x.Id == id);
 
-            if (e == null)
-                return NotFound();
-
-            if (e.Calendar.OwnerId != userId)
-                return Unauthorized(new { message = "Not your event" });
-
-            return Ok(e);
-        }
-
-        // POST: api/events
+        // ============================================================
+        // CREATE EVENT
+        // ============================================================
         [HttpPost]
-        public async Task<IActionResult> CreateEvent(CreateEventDto dto)
+        [Authorize]
+        public async Task<IActionResult> Create(EventCreateDto dto)
         {
-            var userId = GetUserId();
+            var userId = Guid.Parse(User.FindFirst("userid")!.Value);
 
-            // ověř vlastnictví kalendáře
-            var calendar = await _db.Calendars.FirstOrDefaultAsync(c => c.Id == dto.CalendarId && c.OwnerId == userId);
-            if (calendar == null)
-                return Unauthorized(new { message = "You do not own this calendar" });
+            var owns = await _db.Calendars.AnyAsync(c => c.Id == dto.CalendarId && c.OwnerId == userId);
+            if (!owns)
+                return Unauthorized(new { message = "You do not own this calendar." });
 
-            var e = new Event
+            var ev = new Event
             {
                 Id = Guid.NewGuid(),
                 CalendarId = dto.CalendarId,
@@ -86,60 +89,86 @@ namespace Semestralka.Controllers
                 IsAllDay = dto.IsAllDay
             };
 
-            _db.Events.Add(e);
+            _db.Events.Add(ev);
             await _db.SaveChangesAsync();
 
-            return Ok(e);
+            return Ok(new { ev.Id });
         }
 
-        // PUT: api/events/{id}
+
+
+        // ============================================================
+        // UPDATE EVENT
+        // ============================================================
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateEvent(Guid id, UpdateEventDto dto)
+        [Authorize]
+        public async Task<IActionResult> Update(Guid id, EventUpdateDto dto)
         {
-            var userId = GetUserId();
+            var ev = await _db.Events.Include(e => e.Calendar).FirstOrDefaultAsync(e => e.Id == id);
 
-            var e = await _db.Events
-                .Include(x => x.Calendar)
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-            if (e == null)
+            if (ev == null)
                 return NotFound();
 
-            if (e.Calendar.OwnerId != userId)
-                return Unauthorized(new { message = "Not your event" });
+            var userId = Guid.Parse(User.FindFirst("userid")!.Value);
+            if (ev.Calendar.OwnerId != userId)
+                return Unauthorized(new { message = "You do not own this calendar." });
 
-            e.Title = dto.Title;
-            e.Description = dto.Description;
-            e.StartTime = dto.StartTime;
-            e.EndTime = dto.EndTime;
-            e.Location = dto.Location;
-            e.IsAllDay = dto.IsAllDay;
+            ev.Title = dto.Title;
+            ev.Description = dto.Description;
+            ev.StartTime = dto.StartTime;
+            ev.EndTime = dto.EndTime;
+            ev.Location = dto.Location;
+            ev.IsAllDay = dto.IsAllDay;
 
             await _db.SaveChangesAsync();
 
-            return Ok(e);
+            return Ok(new { message = "Updated." });
         }
 
-        // DELETE: api/events/{id}
+
+
+        // ============================================================
+        // DELETE EVENT
+        // ============================================================
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEvent(Guid id)
+        [AllowAnonymous]
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var userId = GetUserId();
+            Guid currentUserId;
 
-            var e = await _db.Events
-                .Include(x => x.Calendar)
-                .FirstOrDefaultAsync(x => x.Id == id);
+            // 1) SESSION AUTH (MVC UI)
+            var sessionUser = HttpContext.Session.GetString("userid");
+            if (sessionUser != null)
+            {
+                currentUserId = Guid.Parse(sessionUser);
+            }
+            else
+            {
+                // 2) JWT AUTH (API client)
+                if (!User.Identity?.IsAuthenticated ?? true)
+                    return Unauthorized();
 
-            if (e == null)
+                currentUserId = Guid.Parse(User.FindFirst("userid")!.Value);
+            }
+
+            // 3) Najdi událost
+            var ev = await _db.Events
+                .Include(e => e.Calendar)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (ev == null)
                 return NotFound();
 
-            if (e.Calendar.OwnerId != userId)
-                return Unauthorized(new { message = "Not your event" });
+            // 4) Ověření vlastnictví
+            if (ev.Calendar.OwnerId != currentUserId)
+                return Unauthorized();
 
-            _db.Events.Remove(e);
+            // 5) Smazání
+            _db.Events.Remove(ev);
             await _db.SaveChangesAsync();
 
-            return Ok(new { message = "Deleted" });
+            return Ok(new { message = "Deleted." });
         }
+
     }
 }
