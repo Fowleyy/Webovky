@@ -1,0 +1,53 @@
+@model Semestralka.Models.Calendar
+
+<h2 class="mb-4">Sdílení kalendáře: @Model.Title</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form method="post" class="mb-4">
+    <div class="mb-3">
+        <label>Email uživatele:</label>
+        <input type="email" name="email" class="form-control" required />
+    </div>
+
+    <div class="mb-3">
+        <label>Práva:</label>
+        <select name="permission" class="form-control">
+            <option value="read">Pouze čtení</option>
+            <option value="edit">Upravit události</option>
+        </select>
+    </div>
+
+    <button class="btn btn-primary">Sdílet kalendář</button>
+</form>
+
+<h4>Kalendář je sdílen s:</h4>
+
+<table class="table table-bordered">
+<thead>
+    <tr>
+        <th>Uživatel</th>
+        <th>Práva</th>
+        <th></th>
+    </tr>
+</thead>
+<tbody>
+@foreach (var s in Model.SharedWith)
+{
+    <tr>
+        <td>@s.User.Email</td>
+        <td>@s.Permission</td>
+        <td>
+            <a href="/calendar/share/remove/@s.Id" class="btn btn-sm btn-danger">Zrušit</a>
+        </td>
+    </tr>
+}
+</tbody>
+</table>

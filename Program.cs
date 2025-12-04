@@ -44,6 +44,8 @@ builder.Services.AddHostedService<NotificationService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSession();
+builder.Services.AddHttpContextAccessor();
+
 
 
 var app = builder.Build();

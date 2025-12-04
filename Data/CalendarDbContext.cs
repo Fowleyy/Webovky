@@ -13,6 +13,7 @@ namespace Semestralka.Data
         public DbSet<Event> Events => Set<Event>();
         public DbSet<Participant> Participants => Set<Participant>();
         public DbSet<Notification> Notifications => Set<Notification>();
+        public DbSet<CalendarShare> CalendarShares => Set<CalendarShare>(); 
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -39,6 +40,19 @@ namespace Semestralka.Data
                 .WithMany(e => e.Participants)
                 .HasForeignKey(p => p.EventId)
                 .OnDelete(DeleteBehavior.Cascade);
+            
+            builder.Entity<CalendarShare>()
+                .HasOne(s => s.Calendar)
+                .WithMany(c => c.SharedWith)
+                .HasForeignKey(s => s.CalendarId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<CalendarShare>()
+                .HasOne(s => s.User)
+                .WithMany(u => u.SharedCalendars)
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }

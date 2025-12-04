@@ -13,5 +13,7 @@ namespace Semestralka.Models
         public string Visibility { get; set; } = "private";
 
         public ICollection<Event> Events { get; set; } = new List<Event>();
+        public ICollection<CalendarShare> SharedWith { get; set; } = new List<CalendarShare>();
+
     }
 }

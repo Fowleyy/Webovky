@@ -13,5 +13,7 @@ namespace Semestralka.Models
         public string? AvatarPath { get; set; } = "/avatars/default.png";
 
         public ICollection<Calendar> Calendars { get; set; } = new List<Calendar>();
+        public ICollection<CalendarShare> SharedCalendars { get; set; } = new List<CalendarShare>();
+
     }
 }

@@ -1,24 +1,57 @@
 @model Semestralka.Models.Calendar
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewData["Title"] = "Kalendář";
+
+    var currentUserId = HttpContextAccessor.HttpContext.Session.GetString("userid");
+    bool isOwner = (currentUserId != null && Model.OwnerId.ToString() == currentUserId);
+
+    // Najdeme permission pro sdílení
+    string permission = "read";
+    if (!isOwner)
+    {
+        var share = Model.SharedWith?.FirstOrDefault(s => s.UserId.ToString() == currentUserId);
+        if (share != null)
+            permission = share.Permission;
+    }
+
+    bool canEdit = isOwner || permission == "edit";
 }
 
 <!-- HEADER -->
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="fw-bold">Kalendář</h2>
+    <h2 class="fw-bold">
+        @Model.Title
+        <span class="text-muted" style="font-size: 16px;">
+            @if (isOwner)
+            {
+                <text>(Můj kalendář)</text>
+            }
+            else
+            {
+                <text>(Sdílený kalendář – @Model.Owner.FullName)</text>
+            }
+        </span>
+    </h2>
 
     <div class="d-flex gap-2">
         <button id="cal-day" class="btn btn-outline-purple">Den</button>
         <button id="cal-week" class="btn btn-outline-purple">Týden</button>
         <button id="cal-month" class="btn btn-purple">Měsíc</button>
+
+        <!-- Tlačítko sdílení pro vlastníka -->
+        @if (isOwner)
+        {
+            <a class="btn btn-outline-primary" href="/calendar/share/@Model.Id">🤝 Sdílet</a>
+        }
     </div>
 </div>
 
 <!-- FULLCALENDAR -->
 <div id="calendar" class="mb-4"></div>
 
-<!-- FullCalendar -->
+<!-- FullCalendar scripts -->
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
 
@@ -27,13 +60,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     var calendarEl = document.getElementById('calendar');
 
-    // LOAD EVENTS FROM API
     async function loadEvents() {
         const res = await fetch('/api/events?calendarId=@Model.Id');
+        if (!res.ok) return [];
         return await res.json();
     }
 
-    // FULLCALENDAR INIT
     var calendar = new FullCalendar.Calendar(calendarEl, {
         headerToolbar: false,
         initialView: "dayGridMonth",
@@ -43,22 +75,32 @@ document.addEventListener('DOMContentLoaded', async function () {
             success(evs);
         },
 
-        dateClick: function(info) {
-            window.location.href = '/event/create/@Model.Id?start=' + info.dateStr;
-        },
+        // ==== CREATE EVENT ====
+        @if (canEdit)
+        {
+            <text>
+            dateClick: function(info) {
+                window.location.href = '/event/create/@Model.Id?start=' + info.dateStr;
+            },
+            </text>
+        }
 
-        eventClick: function(info) {
-            window.location.href = '/event/edit/' + info.event.id;
+        // ==== VIEW/EDIT EVENT ====
+        @if (canEdit)
+        {
+            <text>
+            eventClick: function(info) {
+                window.location.href = '/event/edit/' + info.event.id;
+            }
+            </text>
         }
     });
 
     calendar.render();
 
-    // BUTTON ACTIONS
+    // Change view buttons
     document.getElementById("cal-month").onclick = () => calendar.changeView("dayGridMonth");
     document.getElementById("cal-week").onclick = () => calendar.changeView("timeGridWeek");
     document.getElementById("cal-day").onclick = () => calendar.changeView("timeGridDay");
-    document.getElementById("cal-today").onclick = () => calendar.today();
-
 });
 </script>
