@@ -90,16 +90,23 @@ namespace Semestralka.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<Guid?>("EventId")
                         .HasColumnType("char(36)");
 
-                    b.Property<bool>("IsSent")
+                    b.Property<bool>("IsRead")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<DateTimeOffset>("SendTime")
+                    b.Property<DateTime>("NotifyAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("Type")
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -107,10 +114,6 @@ namespace Semestralka.Migrations
                         .HasColumnType("char(36)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EventId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
                 });
@@ -191,23 +194,6 @@ namespace Semestralka.Migrations
                         .IsRequired();
 
                     b.Navigation("Calendar");
-                });
-
-            modelBuilder.Entity("Semestralka.Models.Notification", b =>
-                {
-                    b.HasOne("Semestralka.Models.Event", "Event")
-                        .WithMany()
-                        .HasForeignKey("EventId");
-
-                    b.HasOne("Semestralka.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Semestralka.Models.Participant", b =>

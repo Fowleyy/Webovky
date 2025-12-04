@@ -30,9 +30,7 @@ namespace Semestralka.Controllers
             return null;
         }
 
-        // ===========================
         // GET /settings
-        // ===========================
         [HttpGet("")]
         public async Task<IActionResult> Index()
         {
@@ -43,9 +41,7 @@ namespace Semestralka.Controllers
             return View(user);
         }
 
-        // ===========================
         // POST /settings/update
-        // ===========================
         [HttpPost("update")]
         public async Task<IActionResult> Update(User model, string newPassword, IFormFile? avatarUpload)
         {
@@ -53,7 +49,6 @@ namespace Semestralka.Controllers
             if (auth != null) return auth;
 
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == UserId);
-
             if (user == null) return Unauthorized();
 
             // === Update profilovky ===
@@ -72,7 +67,6 @@ namespace Semestralka.Controllers
                 user.AvatarPath = "/avatars/" + fileName;
             }
 
-
             // === Update jména a emailu ===
             user.FullName = model.FullName;
             user.Email = model.Email;
@@ -85,9 +79,10 @@ namespace Semestralka.Controllers
 
             await _db.SaveChangesAsync();
 
-            // session refresh
+            // === UPDATE SESSION (DŮLEŽITÉ!) ===
             HttpContext.Session.SetString("fullname", user.FullName);
             HttpContext.Session.SetString("email", user.Email);
+            HttpContext.Session.SetString("avatar", user.AvatarPath ?? "/avatars/default.png");
 
             TempData["Success"] = "Změny byly uloženy.";
             return Redirect("/settings");

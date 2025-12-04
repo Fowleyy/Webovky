@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Semestralka.Data;
+using Semestralka.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,7 +38,7 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
-builder.Services.AddHostedService<Semestralka.Services.NotificationWorker>();
+builder.Services.AddHostedService<NotificationService>();
 
 // ==== SWAGGER (verze BEZ Microsoft.OpenApi.Models) ====
 builder.Services.AddEndpointsApiExplorer();

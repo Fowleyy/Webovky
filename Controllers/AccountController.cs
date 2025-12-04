@@ -31,14 +31,16 @@ namespace Semestralka.Controllers
                 return View("Login");
             }
 
-            // ULOŽÍME VŠECHNY POTŘEBNÉ INFORMACE PRO SIDEBAR
+            // === SESSION VALUES ===
             HttpContext.Session.SetString("userid", user.Id.ToString());
             HttpContext.Session.SetString("email", user.Email);
             HttpContext.Session.SetString("fullname", user.FullName ?? "Uživatel");
 
+            // === AVATAR (DŮLEŽITÉ) ===
+            HttpContext.Session.SetString("avatar", user.AvatarPath ?? "/avatars/default.png");
+
             return Redirect("/");
         }
-
 
         [HttpGet("/account/logout")]
         public IActionResult Logout()
