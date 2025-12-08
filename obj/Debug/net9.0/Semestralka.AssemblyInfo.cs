@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Semestralka")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+aa709c54ce3ef2ddad522c6d1a23ecdacb0954dd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5e68f9fada8ecaf4efc2f905644864dd8e14705d")]
 [assembly: System.Reflection.AssemblyProductAttribute("Semestralka")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Semestralka")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

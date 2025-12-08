@@ -1,13 +1,19 @@
+:root {
+    --purple: #7c3aed;
+    --purple-dark: #6b2bd4;
+}
 
+/* Global link fix inside calendar */
 .fc a {
     text-decoration: none !important;
-    color: inherit;
+    color: inherit !important;
 }
 
 .fc a:hover {
     text-decoration: none !important;
 }
 
+/* MAIN CALENDAR WRAPPER */
 #calendar {
     background: #ffffff;
     padding: 25px;
@@ -17,6 +23,7 @@
     margin-bottom: 25px;
 }
 
+/* ===== HEADER ROW ===== */
 .fc-col-header-cell {
     font-size: 15px !important;
     font-weight: 600 !important;
@@ -31,28 +38,30 @@
     border-bottom: 2px solid #eee5ff !important;
 }
 
+/* ===== DAY NUMBER ===== */
 .fc-daygrid-day-number {
     font-size: 20px !important;
     font-weight: 600 !important;
-    color: #4a4a4a !important;
     padding: 6px 12px !important;
     border-radius: 12px !important;
     opacity: 0.9;
     transition: 0.25s ease;
     display: inline-block;
+    color: #4a4a4a !important;
 }
 
 .fc-day-other .fc-daygrid-day-number {
     opacity: 0.25 !important;
 }
 
-/* Hover effect on day numbers */
+/* Hover effect */
 .fc-daygrid-day:hover .fc-daygrid-day-number {
     background: #f2eaff !important;
-    color: #7c3aed !important;
+    color: var(--purple) !important;
     transform: scale(1.05);
 }
 
+/* Today highlight */
 .fc-day-today .fc-daygrid-day-frame {
     background: #f6efff !important;
     border-radius: 14px !important;
@@ -60,33 +69,17 @@
 }
 
 .fc-day-today .fc-daygrid-day-number {
-    color: #7c3aed !important;
+    color: var(--purple) !important;
     font-weight: 700 !important;
 }
 
+/* Weekend colors */
 .fc-day-sat .fc-daygrid-day-number,
 .fc-day-sun .fc-daygrid-day-number {
     color: #5577ff !important;
 }
 
-.fc-day-sat .fc-daygrid-day-frame,
-.fc-day-sun .fc-daygrid-day-frame {
-    border-radius: 12px !important;
-}
-
-.fc-daygrid-day-frame {
-    padding: 12px !important;
-    transition: 0.25s ease;
-}
-
-.fc-theme-standard td,
-.fc-theme-standard th {
-    border: 1px solid #f2f2f2 !important;
-}
-
-.fc-scrollgrid {
-    border: none !important;
-}
+/* ===== EVENT ===== */
 
 .fc-event {
     background: var(--purple) !important;
@@ -107,11 +100,80 @@
     padding: 5px 8px !important;
 }
 
+/* Remove borders */
+.fc-theme-standard td,
+.fc-theme-standard th {
+    border: 1px solid #f2f2f2 !important;
+}
+
+.fc-scrollgrid {
+    border: none !important;
+}
+
+/* ===== TOP BAR ===== */
+
+.calendar-topbar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 10px 0;
+}
+
+/* Left side */
+.calendar-topbar > *:nth-child(1) {
+    justify-self: start;
+}
+
+/* Center (month title) */
+.calendar-topbar > *:nth-child(2) {
+    justify-self: center;
+}
+
+/* Right side (buttons) */
+.calendar-topbar > *:nth-child(3) {
+    justify-self: end;
+}
+
+/* Month title */
+#cal-title {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: capitalize;
+    color: var(--purple) !important;
+}
+
+/* Arrows */
+.cal-nav {
+    font-size: 28px;
+    color: var(--purple) !important;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: 2px solid var(--purple) !important;
+    transition: 0.2s ease;
+}
+
+.cal-nav:hover {
+    background: var(--purple) !important;
+    color: white !important;
+    transform: translateY(-2px);
+}
+
+/* Force color inside children elements too */
+.cal-nav span,
+.cal-nav svg,
+.cal-nav i {
+    color: var(--purple) !important;
+}
+
+/* ===== VIEW SWITCH BUTTONS ===== */
+
 .btn-outline-purple {
-    border: 1px solid var(--purple);
+    border: 2px solid var(--purple);
     color: var(--purple);
     font-weight: 500;
-    padding: 6px 14px;
+    padding: 8px 18px;
     border-radius: 10px;
     transition: 0.2s;
 }
@@ -125,7 +187,7 @@
     background: var(--purple);
     color: white;
     border-radius: 10px;
-    padding: 6px 14px;
+    padding: 8px 18px;
     font-weight: 500;
 }
 

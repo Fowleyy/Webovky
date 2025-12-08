@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     var calendarEl = document.getElementById('calendar');
 
+    // ======================================================
+    // LOAD EVENTS
+    // ======================================================
     async function loadEvents() {
         const res = await fetch(`/api/events?calendarId=${CALENDAR_ID}`, {
             credentials: "same-origin"
@@ -23,6 +26,24 @@ document.addEventListener('DOMContentLoaded', async function () {
         return template.content.firstChild;
     }
 
+    // ======================================================
+    // UPDATE MONTH TITLE
+    // ======================================================
+    function updateTitle() {
+        const date = calendar.getDate();
+
+        const formatter = new Intl.DateTimeFormat("cs-CZ", {
+            month: "long",
+            year: "numeric",
+        });
+
+        document.getElementById("cal-title").textContent =
+            formatter.format(date);
+    }
+
+    // ======================================================
+    // FULLCALENDAR CONFIG
+    // ======================================================
     var config = {
         headerToolbar: false,
         initialView: "dayGridMonth",
@@ -55,6 +76,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     };
 
+    // EDIT PERMISSIONS
     if (CAN_EDIT) {
         config.dateClick = function (info) {
             window.location.href = `/event/create/${CALENDAR_ID}?start=` + info.dateStr;
@@ -69,7 +91,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     calendar.render();
     calendar.refetchEvents();
 
+    updateTitle(); // show current month
 
+    // ======================================================
+    // ACTIVE BUTTON HIGHLIGHT
+    // ======================================================
     function setActive(buttonId) {
         const buttons = ["cal-day", "cal-week", "cal-month"];
 
@@ -82,20 +108,42 @@ document.addEventListener('DOMContentLoaded', async function () {
         document.getElementById(buttonId).classList.add("btn-purple");
     }
 
+    // ======================================================
+    // VIEW SWITCHING
+    // ======================================================
+
     document.getElementById("cal-month").onclick = () => {
         calendar.changeView("dayGridMonth");
         setActive("cal-month");
+        updateTitle();
     };
 
     document.getElementById("cal-week").onclick = () => {
         calendar.changeView("timeGridWeek");
         setActive("cal-week");
+        updateTitle();
     };
 
     document.getElementById("cal-day").onclick = () => {
         calendar.changeView("timeGridDay");
         setActive("cal-day");
+        updateTitle();
     };
 
+    // ======================================================
+    // MONTH SWITCHING
+    // ======================================================
+
+    document.getElementById("cal-prev").onclick = () => {
+        calendar.prev();
+        updateTitle();
+    };
+
+    document.getElementById("cal-next").onclick = () => {
+        calendar.next();
+        updateTitle();
+    };
+
+    // Default active button
     setActive("cal-month");
 });

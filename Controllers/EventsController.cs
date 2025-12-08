@@ -44,7 +44,10 @@ namespace Semestralka.Controllers
             if (calendar == null)
                 return NotFound();
 
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
             bool hasAccess =
+                (user?.IsAdmin ?? false) ||            // ✅ admin může všechno
                 calendar.OwnerId == userId ||
                 calendar.SharedWith.Any(s => s.UserId == userId);
 
@@ -52,21 +55,19 @@ namespace Semestralka.Controllers
                 return Unauthorized();
 
             var events = await _db.Events
-                .Include(e => e.Category)
                 .Where(e => e.CalendarId == calendarId)
-                .Select(e => new
-                {
+                .Select(e => new {
                     id = e.Id,
                     title = e.Title,
                     start = e.StartTime,
                     end = e.EndTime,
-                    categoryId = e.CategoryId,
-                    color = e.Category != null ? e.Category.Color : "#6b46c1"
+                    color = e.Category.Color
                 })
                 .ToListAsync();
 
             return Ok(events);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateEventDto dto)

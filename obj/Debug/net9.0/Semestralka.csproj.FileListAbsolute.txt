@@ -402,8 +402,6 @@ C:/Users/Daniel/Documents/GitHub/Webovky/obj/Debug/net9.0/compressed/uiwo0e89jk-
 C:/Users/Daniel/Documents/GitHub/Webovky/obj/Debug/net9.0/compressed/854cuk2ro8-9vr69e8ynj.gz
 C:/Users/Daniel/Documents/GitHub/Webovky/obj/Debug/net9.0/compressed/h4902z7ig0-87fc7y1x7t.gz
 C:/Users/Daniel/Documents/GitHub/Webovky/obj/Debug/net9.0/compressed/5wjpjwm907-mlv21k5csn.gz
-C:/Users/Daniel/Documents/GitHub/Webovky/obj/Debug/net9.0/compressed/xz812jkre4-37ha0wxeq0.gz
-C:/Users/Daniel/Documents/GitHub/Webovky/obj/Debug/net9.0/compressed/v6ccilvf7i-37ha0wxeq0.gz
 C:/Users/Daniel/Documents/GitHub/Webovky/obj/Debug/net9.0/staticwebassets.build.json
 C:/Users/Daniel/Documents/GitHub/Webovky/obj/Debug/net9.0/staticwebassets.build.json.cache
 C:/Users/Daniel/Documents/GitHub/Webovky/obj/Debug/net9.0/staticwebassets.development.json
@@ -814,8 +812,6 @@ C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\uiwo0e89jk-
 C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\854cuk2ro8-9vr69e8ynj.gz
 C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\h4902z7ig0-87fc7y1x7t.gz
 C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\5wjpjwm907-mlv21k5csn.gz
-C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\xz812jkre4-37ha0wxeq0.gz
-C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\v6ccilvf7i-37ha0wxeq0.gz
 C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\staticwebassets.build.json
 C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\staticwebassets.build.json.cache
 C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\staticwebassets.development.json
@@ -828,10 +824,12 @@ C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\Semestralka.genruntime
 C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\ref\Semestralka.dll
 C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\72je1meb1q-8kjugtu8z1.gz
 C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\9d0lran3bd-ppl15e5pri.gz
-C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\7rnf10igge-ecdhqjv1cl.gz
 C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\zr6ovkrzcs-wrdcog5u2k.gz
 C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\59rx1iv43l-an50257csv.gz
 C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\a5gcei2okj-kqxqbgd90c.gz
-C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\2c5e8vpn6w-eeclkbu01q.gz
 C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\wrzzqm6x4o-1tjxj96x5x.gz
-C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\4gwdazc94q-uhjacdc7de.gz
+C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\xz812jkre4-koiq0al4pr.gz
+C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\v6ccilvf7i-koiq0al4pr.gz
+C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\2c5e8vpn6w-sseopeglfo.gz
+C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\7rnf10igge-yi6wosk1sd.gz
+C:\Users\Daniel\Documents\GitHub\Webovky\obj\Debug\net9.0\compressed\4gwdazc94q-8lyv96zqpf.gz

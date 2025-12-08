@@ -82,3 +82,24 @@
     background: #f3e9ff;
     border-left: 4px solid #7d4bff;
 }
+
+.btn-outline-purple {
+    border: 1px solid #c8b5ff;
+    color: #6b46c1;
+    background: white;
+}
+
+.btn-outline-purple:hover {
+    background: #f3eaff;
+}
+
+.btn-purple {
+    background: #6b46c1;
+    color: white;
+    border: none;
+}
+
+.calendar-title {
+    color: #6b46c1;
+}
+
