@@ -28,36 +28,102 @@ namespace Semestralka.Controllers
             return null;
         }
 
-        // ============================================================
-        // GET /event/create/{calendarId}
-        // Otevření formuláře pro vytvoření události
-        // ============================================================
+        private async Task<(bool canRead, bool canEdit)> CheckPermissions(Guid calendarId)
+        {
+            var calendar = await _db.Calendars
+                .Include(c => c.SharedWith)
+                .FirstOrDefaultAsync(c => c.Id == calendarId);
+
+            if (calendar == null || UserId == null)
+                return (false, false);
+
+            if (calendar.OwnerId == UserId)
+                return (true, true);
+
+            var share = calendar.SharedWith.FirstOrDefault(s => s.UserId == UserId);
+
+            if (share == null)
+                return (false, false);
+
+            if (share.Permission == "edit")
+                return (true, true);
+
+            return (true, false);
+        }
+
         [HttpGet("create/{calendarId}")]
         public async Task<IActionResult> Create(Guid calendarId)
         {
             var auth = RequireLogin();
             if (auth != null) return auth;
 
-            var calendar = await _db.Calendars.FirstOrDefaultAsync(c => c.Id == calendarId);
-            if (calendar == null || calendar.OwnerId != UserId)
+            bool isAdmin = HttpContext.Session.GetString("isAdmin") == "1";
+
+            var calendar = await _db.Calendars
+                .Include(c => c.SharedWith)
+                .FirstOrDefaultAsync(c => c.Id == calendarId);
+
+            if (calendar == null)
+                return NotFound();
+
+            bool hasAccess = false;
+
+            if (isAdmin || calendar.OwnerId == UserId)
+                hasAccess = true;
+            else
+            {
+                var perm = calendar.SharedWith
+                    .FirstOrDefault(s => s.UserId == UserId)?.Permission;
+
+                if (perm == "edit")
+                    hasAccess = true;
+            }
+
+            if (!hasAccess)
                 return Unauthorized();
 
             ViewBag.CalendarId = calendarId;
+
+            ViewBag.Categories = await _db.Categories.ToListAsync();
+
             return View();
         }
 
-        // ============================================================
-        // POST /event/create/{calendarId}
-        // Vytvoření události
-        // ============================================================
         [HttpPost("create/{calendarId}")]
         public async Task<IActionResult> CreatePost(Guid calendarId, Event model)
         {
             var auth = RequireLogin();
             if (auth != null) return auth;
 
-            var calendar = await _db.Calendars.FirstOrDefaultAsync(c => c.Id == calendarId);
-            if (calendar == null || calendar.OwnerId != UserId)
+            bool isAdmin = HttpContext.Session.GetString("isAdmin") == "1";
+
+            var calendar = await _db.Calendars
+                .Include(c => c.SharedWith)
+                .FirstOrDefaultAsync(c => c.Id == calendarId);
+
+            if (calendar == null)
+                return NotFound();
+
+            bool hasAccess = false;
+
+            if (isAdmin)
+            {
+                hasAccess = true;
+            }
+            else if (calendar.OwnerId == UserId)
+            {
+                hasAccess = true;
+            }
+            else
+            {
+                var perm = calendar.SharedWith
+                    .FirstOrDefault(s => s.UserId == UserId)?.Permission;
+
+                if (perm == "edit")
+                    hasAccess = true;
+            }
+
+            if (!hasAccess)
                 return Unauthorized();
 
             if (model.StartTime > model.EndTime)
@@ -73,14 +139,9 @@ namespace Semestralka.Controllers
             _db.Events.Add(model);
             await _db.SaveChangesAsync();
 
-            // Nová logika → vracíme uživatele na hlavní stránku
             return Redirect("/");
         }
 
-        // ============================================================
-        // GET /event/edit/{id}
-        // Formulář pro úpravu události
-        // ============================================================
         [HttpGet("edit/{id}")]
         public async Task<IActionResult> Edit(Guid id)
         {
@@ -91,16 +152,31 @@ namespace Semestralka.Controllers
                 .Include(e => e.Calendar)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
-            if (ev == null || ev.Calendar.OwnerId != UserId)
-                return Unauthorized();
+            bool isAdmin = HttpContext.Session.GetString("isAdmin") == "1";
+
+            if (!isAdmin)
+            {
+                if (ev.Calendar.OwnerId == UserId)
+                {
+                }
+                else
+                {
+                    bool hasEditPermission = await _db.CalendarShares
+                        .AnyAsync(s => s.CalendarId == ev.CalendarId &&
+                                    s.UserId == UserId &&
+                                    s.Permission == "edit");
+
+                    if (!hasEditPermission)
+                        return Unauthorized();
+                }
+            }
+
+
+            ViewBag.Categories = await _db.Categories.ToListAsync();
 
             return View(ev);
         }
 
-        // ============================================================
-        // POST /event/edit/{id}
-        // Uložení úprav události
-        // ============================================================
         [HttpPost("edit/{id}")]
         public async Task<IActionResult> EditPost(Guid id, Event model)
         {
@@ -111,8 +187,24 @@ namespace Semestralka.Controllers
                 .Include(e => e.Calendar)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
-            if (ev == null || ev.Calendar.OwnerId != UserId)
-                return Unauthorized();
+            if (ev == null)
+                return NotFound();
+
+            bool isAdmin = HttpContext.Session.GetString("isAdmin") == "1";
+
+            if (!isAdmin)
+            {
+                if (ev.Calendar.OwnerId != UserId)
+                {
+                    bool hasEditPermission = await _db.CalendarShares
+                        .AnyAsync(s => s.CalendarId == ev.CalendarId &&
+                                    s.UserId == UserId &&
+                                    s.Permission == "edit");
+
+                    if (!hasEditPermission)
+                        return Unauthorized();
+                }
+            }
 
             if (model.StartTime > model.EndTime)
             {
@@ -126,57 +218,52 @@ namespace Semestralka.Controllers
             ev.EndTime = model.EndTime;
             ev.Location = model.Location;
             ev.IsAllDay = model.IsAllDay;
+            ev.CategoryId = model.CategoryId;
 
             await _db.SaveChangesAsync();
 
-            // Vrací na hlavní kalendář
             return Redirect("/");
         }
 
-        // ============================================================
-        // GET /event/delete/{id}
-        // Smazání události
-        // ============================================================
         [HttpGet("delete/{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var auth = RequireLogin();
-            if (auth != null) return auth;
+            var login = RequireLogin();
+            if (login != null) return login;
 
             var ev = await _db.Events
                 .Include(e => e.Calendar)
+                .ThenInclude(c => c.SharedWith)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
-            if (ev == null || ev.Calendar.OwnerId != UserId)
+            if (ev == null)
+                return NotFound();
+
+            var (canRead, canEdit) = await CheckPermissions(ev.CalendarId);
+            if (!canEdit)
                 return Unauthorized();
 
             _db.Events.Remove(ev);
             await _db.SaveChangesAsync();
 
-            // Vrací na hlavní stránku
             return Redirect("/");
         }
-        // ============================================================
-        // GET /events
-        // Stránka se seznamem událostí
-        // ============================================================
+
         [HttpGet("/events")]
         public async Task<IActionResult> List()
         {
-            var auth = RequireLogin();
-            if (auth != null) return auth;
+            var login = RequireLogin();
+            if (login != null) return login;
 
-            // najdeme všechny kalendáře uživatele
             var calendars = await _db.Calendars
-                .Where(c => c.OwnerId == UserId)
+                .Include(c => c.SharedWith)
+                .Where(c =>
+                       c.OwnerId == UserId ||
+                       c.SharedWith.Any(s => s.UserId == UserId))
                 .ToListAsync();
-
-            if (calendars.Count == 0)
-                return View(new List<Event>());
 
             var calendarIds = calendars.Select(c => c.Id);
 
-            // načteme všechny události uživatele
             var events = await _db.Events
                 .Where(e => calendarIds.Contains(e.CalendarId))
                 .OrderBy(e => e.StartTime)
@@ -184,6 +271,5 @@ namespace Semestralka.Controllers
 
             return View("List", events);
         }
-
     }
 }

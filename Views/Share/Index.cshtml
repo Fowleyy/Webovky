@@ -1,6 +1,17 @@
 @model Semestralka.Models.Calendar
 
-<h2 class="mb-4">Sdílení kalendáře: @Model.Title</h2>
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    var currentUserId = HttpContextAccessor.HttpContext.Session.GetString("userid");
+    bool isOwner = Model.OwnerId.ToString() == currentUserId;
+
+    string calendarDisplayName = isOwner
+        ? "Můj kalendář"
+        : $"Kalendář vlastníka – {Model.Owner?.FullName}";
+}
+
+<h2 class="mb-4">@calendarDisplayName – Sdílení</h2>
 
 @if (TempData["Error"] != null)
 {
@@ -14,13 +25,13 @@
 <form method="post" class="mb-4">
     <div class="mb-3">
         <label>Email uživatele:</label>
-        <input type="email" name="email" class="form-control" required />
+        <input type="email" name="email" required class="form-control" />
     </div>
 
     <div class="mb-3">
         <label>Práva:</label>
         <select name="permission" class="form-control">
-            <option value="read">Pouze čtení</option>
+            <option value="read">Pouze číst</option>
             <option value="edit">Upravit události</option>
         </select>
     </div>
@@ -30,24 +41,36 @@
 
 <h4>Kalendář je sdílen s:</h4>
 
-<table class="table table-bordered">
-<thead>
-    <tr>
-        <th>Uživatel</th>
-        <th>Práva</th>
-        <th></th>
-    </tr>
-</thead>
-<tbody>
-@foreach (var s in Model.SharedWith)
+@if (Model.SharedWith == null || !Model.SharedWith.Any())
 {
-    <tr>
-        <td>@s.User.Email</td>
-        <td>@s.Permission</td>
-        <td>
-            <a href="/calendar/share/remove/@s.Id" class="btn btn-sm btn-danger">Zrušit</a>
-        </td>
-    </tr>
+    <p class="text-muted">Kalendář není sdílen s nikým.</p>
 }
-</tbody>
-</table>
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Jméno</th>
+                <th>Email</th>
+                <th>Práva</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+        @foreach (var share in Model.SharedWith)
+        {
+            <tr>
+                <td>@share.User?.FullName</td>
+                <td>@share.User?.Email</td>
+                <td>@share.Permission</td>
+                <td>
+                    <a href="/calendar/share/remove/@share.Id" class="btn btn-sm btn-danger">
+                        Odebrat
+                    </a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

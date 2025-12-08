@@ -23,9 +23,6 @@ namespace Semestralka.Controllers
             _db = db;
         }
 
-        // ===========================
-        // REGISTER
-        // ===========================
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
@@ -58,10 +55,6 @@ namespace Semestralka.Controllers
             return Ok(new { message = "User created successfully." });
         }
 
-
-        // ===========================
-        // LOGIN + SESSION
-        // ===========================
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto dto)
         {
@@ -79,7 +72,6 @@ namespace Semestralka.Controllers
 
             var token = GenerateToken(user);
 
-            // 🔥 Store user info in session for MVC layout
             HttpContext.Session.SetString("userid", user.Id.ToString());
             HttpContext.Session.SetString("email", user.Email);
             HttpContext.Session.SetString("fullname", user.FullName ?? "Uživatel");
@@ -97,10 +89,6 @@ namespace Semestralka.Controllers
             });
         }
 
-
-        // ===========================
-        // JWT CREATOR
-        // ===========================
         private string GenerateToken(User user)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtKey));

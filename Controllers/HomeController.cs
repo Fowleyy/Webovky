@@ -17,29 +17,24 @@ namespace Semestralka.Controllers
             _logger = logger;
         }
 
-        // HLAVNÍ STRÁNKA – osobní kalendář
         public async Task<IActionResult> Index()
         {
-            // Pokud není přihlášen → login
             var uid = HttpContext.Session.GetString("userid");
             if (uid == null)
                 return Redirect("/login");
 
             var userId = Guid.Parse(uid);
 
-            // Najdi hlavní kalendář uživatele
             var calendar = await _db.Calendars
                 .Include(c => c.Events)
                 .FirstOrDefaultAsync(c => c.OwnerId == userId);
 
-            // Vytvoř hlavní kalendář pokud neexistuje
             if (calendar == null)
             {
                 calendar = new Calendar
                 {
                     Id = Guid.NewGuid(),
                     OwnerId = userId,
-                    Title = "Můj kalendář",
                     Color = "#4287f5",
                     Visibility = "private"
                 };
@@ -48,14 +43,11 @@ namespace Semestralka.Controllers
                 await _db.SaveChangesAsync();
             }
 
-            // Nastavíme currentCalendarId do Session pro sdílení
             HttpContext.Session.SetString("currentCalendarId", calendar.Id.ToString());
 
             return View("FullCalendarHome", calendar);
         }
 
-
-        // 🟣 ZOBRAZENÍ SDÍLENÝCH KALENDÁŘŮ
         [HttpGet("/shared-calendars")]
         public async Task<IActionResult> SharedCalendars()
         {
@@ -67,14 +59,13 @@ namespace Semestralka.Controllers
 
             var shared = await _db.CalendarShares
                 .Include(s => s.Calendar)
+                    .ThenInclude(c => c.Owner)
                 .Where(s => s.UserId == userId)
                 .ToListAsync();
 
             return View("SharedCalendars", shared);
         }
 
-
-        // 🟣 ZOBRAZENÍ KONKRÉTNÍHO SDÍLENÉHO KALENDÁŘE
         [HttpGet("/calendar/{id}")]
         public async Task<IActionResult> ViewShared(Guid id)
         {
@@ -85,8 +76,10 @@ namespace Semestralka.Controllers
             var userId = Guid.Parse(uid);
 
             var calendar = await _db.Calendars
-                .Include(c => c.Events)
+                .Include(c => c.Owner)
                 .Include(c => c.SharedWith)
+                .ThenInclude(s => s.User)
+                .Include(c => c.Events)
                 .FirstOrDefaultAsync(c =>
                     c.Id == id &&
                     (c.OwnerId == userId || c.SharedWith.Any(s => s.UserId == userId))
@@ -95,11 +88,11 @@ namespace Semestralka.Controllers
             if (calendar == null)
                 return Unauthorized();
 
-            // nastavíme currentCalendarId
             HttpContext.Session.SetString("currentCalendarId", calendar.Id.ToString());
 
             return View("FullCalendarHome", calendar);
         }
+
 
 
         public IActionResult Privacy()
@@ -115,5 +108,15 @@ namespace Semestralka.Controllers
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
             });
         }
+        public IActionResult Landing()
+        {
+            if (HttpContext.Session.GetString("userid") != null)
+                return RedirectToAction("Index");
+
+            return View();
+        }
+
+
+
     }
 }

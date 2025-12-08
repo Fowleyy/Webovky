@@ -21,7 +21,6 @@ namespace Semestralka.Controllers
                 ? Guid.Parse(id)
                 : (Guid?)null;
 
-        // GET /api/notifications
         [HttpGet]
         public async Task<IActionResult> GetMy()
         {
@@ -36,7 +35,6 @@ namespace Semestralka.Controllers
             return Ok(items);
         }
 
-        // POST /api/notifications/read/{id}
         [HttpPost("read/{id}")]
         public async Task<IActionResult> MarkRead(Guid id)
         {
@@ -55,7 +53,6 @@ namespace Semestralka.Controllers
             return Ok();
         }
 
-        // DELETE /api/notifications/delete/{id}
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -74,7 +71,6 @@ namespace Semestralka.Controllers
             return Ok();
         }
 
-        // TEST NOTIFICATION
         [HttpPost("test")]
         public async Task<IActionResult> CreateTest()
         {

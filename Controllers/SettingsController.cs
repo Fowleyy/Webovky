@@ -5,7 +5,6 @@ using Semestralka.Models;
 
 namespace Semestralka.Controllers
 {
-    [Route("settings")]
     public class SettingsController : Controller
     {
         private readonly CalendarDbContext _db;
@@ -17,74 +16,83 @@ namespace Semestralka.Controllers
             _env = env;
         }
 
-        private Guid? UserId =>
-            HttpContext.Session.GetString("userid") is string id
-                ? Guid.Parse(id)
-                : null;
-
-        private IActionResult? RequireLogin()
-        {
-            if (UserId == null)
-                return Redirect("/login");
-
-            return null;
-        }
-
-        // GET /settings
-        [HttpGet("")]
+        [HttpGet("/settings")]
         public async Task<IActionResult> Index()
         {
-            var auth = RequireLogin();
-            if (auth != null) return auth;
+            var userId = HttpContext.Session.GetString("userid");
+            if (userId == null) return Redirect("/login");
 
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == UserId);
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == Guid.Parse(userId));
             return View(user);
         }
 
-        // POST /settings/update
-        [HttpPost("update")]
-        public async Task<IActionResult> Update(User model, string newPassword, IFormFile? avatarUpload)
+        [HttpPost("/settings/update")]
+        public async Task<IActionResult> Update(
+            string FullName,
+            string Email,
+            string? oldPassword,
+            string? newPassword,
+            string? newPasswordConfirm,
+            IFormFile? avatarUpload)
         {
-            var auth = RequireLogin();
-            if (auth != null) return auth;
+            var userId = HttpContext.Session.GetString("userid");
+            if (userId == null) return Redirect("/login");
 
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == UserId);
-            if (user == null) return Unauthorized();
+            var user = await _db.Users.FirstAsync(x => x.Id == Guid.Parse(userId));
 
-            // === Update profilovky ===
             if (avatarUpload != null && avatarUpload.Length > 0)
             {
-                var folder = Path.Combine(_env.WebRootPath, "avatars");
-                if (!Directory.Exists(folder))
-                    Directory.CreateDirectory(folder);
+                var uploadPath = Path.Combine(_env.WebRootPath, "avatars");
 
-                var fileName = $"{user.Id}{Path.GetExtension(avatarUpload.FileName)}";
-                var filePath = Path.Combine(folder, fileName);
+                if (!Directory.Exists(uploadPath))
+                    Directory.CreateDirectory(uploadPath);
 
-                using (var stream = System.IO.File.Create(filePath))
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(avatarUpload.FileName)}";
+                var fullPath = Path.Combine(uploadPath, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
                     await avatarUpload.CopyToAsync(stream);
+                }
 
                 user.AvatarPath = "/avatars/" + fileName;
+                HttpContext.Session.SetString("avatar", user.AvatarPath);
             }
 
-            // === Update jména a emailu ===
-            user.FullName = model.FullName;
-            user.Email = model.Email;
+            user.FullName = FullName;
+            user.Email = Email;
 
-            // === Změna hesla ===
-            if (!string.IsNullOrWhiteSpace(newPassword))
+            HttpContext.Session.SetString("fullname", FullName);
+            HttpContext.Session.SetString("email", Email);
+
+            if (!string.IsNullOrEmpty(oldPassword) ||
+                !string.IsNullOrEmpty(newPassword) ||
+                !string.IsNullOrEmpty(newPasswordConfirm))
             {
+                if (!BCrypt.Net.BCrypt.Verify(oldPassword, user.PasswordHash))
+                {
+                    TempData["Error"] = "Staré heslo není správně.";
+                    return Redirect("/settings");
+                }
+
+                if (newPassword != newPasswordConfirm)
+                {
+                    TempData["Error"] = "Nová hesla se neshodují.";
+                    return Redirect("/settings");
+                }
+
+                if (newPassword!.Length < 6)
+                {
+                    TempData["Error"] = "Nové heslo musí mít alespoň 6 znaků.";
+                    return Redirect("/settings");
+                }
+
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
             }
 
             await _db.SaveChangesAsync();
 
-            // === UPDATE SESSION (DŮLEŽITÉ!) ===
-            HttpContext.Session.SetString("fullname", user.FullName);
-            HttpContext.Session.SetString("email", user.Email);
-            HttpContext.Session.SetString("avatar", user.AvatarPath ?? "/avatars/default.png");
-
-            TempData["Success"] = "Změny byly uloženy.";
+            TempData["Success"] = "Změny uloženy.";
             return Redirect("/settings");
         }
     }

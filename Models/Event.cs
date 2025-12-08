@@ -16,6 +16,9 @@ namespace Semestralka.Models
         public string? Location { get; set; }
         public bool IsAllDay { get; set; }
 
+        public Guid? CategoryId { get; set; }
+        public EventCategory? Category { get; set; }
+
         public ICollection<Participant> Participants { get; set; } = new List<Participant>();
     }
 }

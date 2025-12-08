@@ -1,46 +1,81 @@
-@model Semestralka.Models.Event
-
 @{
     ViewData["Title"] = "Vytvořit událost";
+    Layout = "_Layout";
 }
 
-<h2>Vytvořit událost</h2>
+<h2 class="fw-bold mb-4">Vytvořit událost</h2>
 
-@if (ViewData["Error"] != null)
-{
-    <div class="alert alert-danger">@ViewData["Error"]</div>
-}
+<div class="event-form">
 
-<form method="post">
-    <div class="mb-3">
-        <label>Název</label>
-        <input class="form-control" name="Title" required />
-    </div>
+    @if (ViewData["Error"] != null)
+    {
+        <div class="error mb-3">@ViewData["Error"]</div>
+    }
 
-    <div class="mb-3">
-        <label>Popis</label>
-        <textarea class="form-control" name="Description"></textarea>
-    </div>
+    <form method="post">
 
-    <div class="mb-3">
-        <label>Začátek</label>
-        <input type="datetime-local" class="form-control" name="StartTime" required />
-    </div>
+        <input type="hidden" name="CalendarId" value="@(ViewBag.CalendarId)" />
 
-    <div class="mb-3">
-        <label>Konec</label>
-        <input type="datetime-local" class="form-control" name="EndTime" required />
-    </div>
+        <div class="row">
+            <div class="col">
+                <label>Název události</label>
+                <input name="Title" type="text" required />
+            </div>
+        </div>
 
-    <div class="mb-3">
-        <label>Místo</label>
-        <input class="form-control" name="Location" />
-    </div>
+        <div class="row">
+            <div class="col">
+                <label>Popis</label>
+                <textarea name="Description"></textarea>
+            </div>
+        </div>
 
-    <div class="form-check mb-3">
-        <input class="form-check-input" type="checkbox" name="IsAllDay" />
-        <label class="form-check-label">Celý den</label>
-    </div>
+        <div class="inline">
+            <div class="inline-item">
+                <label>Začátek</label>
+                <input name="StartTime" type="datetime-local" required />
+            </div>
 
-    <button class="btn btn-primary">Vytvořit</button>
-</form>
+            <div class="inline-item">
+                <label>Konec</label>
+                <input name="EndTime" type="datetime-local" required />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label>Místo</label>
+                <input name="Location" type="text" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label>Kategorie</label>
+                <select name="CategoryId">
+                    <option value="">Žádná kategorie</option>
+
+                    @if (ViewBag.Categories != null)
+                    {
+                        foreach (var cat in (IEnumerable<dynamic>)ViewBag.Categories)
+                        {
+                            <option value="@cat.Id">@cat.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="checkbox">
+            <input type="checkbox" name="IsAllDay" value="true" />
+            <label>Celodenní událost</label>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary">Vytvořit</button>
+            <a href="/" class="btn btn-outline">Zpět</a>
+        </div>
+
+    </form>
+
+</div>

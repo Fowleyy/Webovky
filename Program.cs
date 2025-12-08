@@ -12,7 +12,7 @@ const string JwtKey = "THIS_IS_THE_FINAL_TEST_KEY_1234567890_ABCDEF_0987654321";
 // MVC + API
 builder.Services.AddControllersWithViews();
 
-// DB (MySQL – beze změny)
+// DATABASE
 builder.Services.AddDbContext<CalendarDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -20,7 +20,7 @@ builder.Services.AddDbContext<CalendarDbContext>(options =>
     )
 );
 
-// JWT
+// JWT AUTH
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -38,19 +38,21 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
+
+// BACKGROUND SERVICES
 builder.Services.AddHostedService<NotificationService>();
 
-// ==== SWAGGER (verze BEZ Microsoft.OpenApi.Models) ====
+// SWAGGER
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// SESSION
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 
-
-
 var app = builder.Build();
 
-// ==== Swagger Middleware =====
+// SWAGGER UI
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -58,19 +60,20 @@ app.UseSwaggerUI(c =>
     c.DocumentTitle = "Kalendář – API dokumentace";
 });
 
-// ===== Middleware =====
+// MIDDLEWARE PIPELINE
 app.UseStaticFiles();
-
 app.UseRouting();
-app.UseSession();
+app.UseSession();       // MUSÍ být před UseAuthentication a před UseAuthorization
 app.UseAuthentication();
 app.UseAuthorization();
 
+
+// ROUTES
 app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}"
-);
+    pattern: "{controller=Home}/{action=Landing}/{id?}");
+
 
 app.Run();

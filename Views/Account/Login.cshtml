@@ -1,27 +1,31 @@
 @{
-    Layout = "_LoginLayout";
-    ViewData["Title"] = "Přihlášení";
+    Layout = null;
 }
 
-<div class="card p-4 shadow-sm">
-    <h3 class="mb-3">Přihlášení</h3>
+<link rel="stylesheet" href="/css/auth.css" />
 
-    @if (ViewData["Error"] != null)
-    {
-        <div class="alert alert-danger">@ViewData["Error"]</div>
-    }
+<div class="bg-blob blob-a"></div>
+<div class="bg-blob blob-b"></div>
 
-    <form method="post">
-        <div class="mb-3">
-            <label>Email:</label>
-            <input name="email" class="form-control" type="email" required />
-        </div>
+<div class="auth-card-wrapper">
+    <div class="auth-card">
 
-        <div class="mb-3">
-            <label>Heslo:</label>
-            <input name="password" class="form-control" type="password" required />
-        </div>
+        <h2>Přihlášení</h2>
+        <p>Vítejte zpět! Pokračujte do svého kalendáře.</p>
 
-        <button class="btn btn-primary w-100">Přihlásit se</button>
-    </form>
+        @if (ViewData["Error"] != null)
+        {
+            <div style="color:#d33;font-weight:600;margin-bottom:12px;">
+                @ViewData["Error"]
+            </div>
+        }
+
+        <form method="post" action="/login">
+            <input type="email" name="email" placeholder="Email" required />
+            <input type="password" name="password" placeholder="Heslo" required />
+            <button class="auth-btn">Přihlásit se</button>
+        </form>
+
+        <a href="/register" class="auth-link">Nemáte účet? Registrujte se</a>
+    </div>
 </div>

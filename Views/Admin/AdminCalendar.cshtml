@@ -1,0 +1,32 @@
+@model Semestralka.Models.Calendar
+
+@{
+    ViewData["Title"] = "Administrace – Kalendář uživatele";
+}
+
+<h2 class="fw-bold mb-3">
+    Kalendář uživatele @Model.Owner.FullName
+</h2>
+
+<p class="text-muted">
+    Admin má plný přístup k úpravám všech událostí.
+</p>
+
+<div class="d-flex gap-2 mb-3">
+    <button id="cal-day" class="btn btn-outline-purple">Den</button>
+    <button id="cal-week" class="btn btn-outline-purple">Týden</button>
+    <button id="cal-month" class="btn btn-purple">Měsíc</button>
+</div>
+
+<div id="calendar"></div>
+
+<script>
+    window.CALENDAR_ID = "@Model.Id";
+    window.CAN_EDIT = true;
+</script>
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
+
+<script src="/js/calendar.js"></script>
+

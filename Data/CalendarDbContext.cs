@@ -14,6 +14,7 @@ namespace Semestralka.Data
         public DbSet<Participant> Participants => Set<Participant>();
         public DbSet<Notification> Notifications => Set<Notification>();
         public DbSet<CalendarShare> CalendarShares => Set<CalendarShare>(); 
+        public DbSet<EventCategory> Categories => Set<EventCategory>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

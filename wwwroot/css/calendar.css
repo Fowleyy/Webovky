@@ -1,6 +1,4 @@
-/* ============================================
-   REMOVE UNDERLINES FROM ALL CALENDAR LINKS
-   ============================================ */
+
 .fc a {
     text-decoration: none !important;
     color: inherit;
@@ -10,9 +8,6 @@
     text-decoration: none !important;
 }
 
-/* ============================================
-   MAIN CALENDAR CONTAINER (CARD LOOK)
-   ============================================ */
 #calendar {
     background: #ffffff;
     padding: 25px;
@@ -22,9 +17,6 @@
     margin-bottom: 25px;
 }
 
-/* ============================================
-   HEADER DAYS (Sun, Mon, Tue...)
-   ============================================ */
 .fc-col-header-cell {
     font-size: 15px !important;
     font-weight: 600 !important;
@@ -39,9 +31,6 @@
     border-bottom: 2px solid #eee5ff !important;
 }
 
-/* ============================================
-   DAY NUMBER STYLING
-   ============================================ */
 .fc-daygrid-day-number {
     font-size: 20px !important;
     font-weight: 600 !important;
@@ -53,7 +42,6 @@
     display: inline-block;
 }
 
-/* Previous/next month numbers */
 .fc-day-other .fc-daygrid-day-number {
     opacity: 0.25 !important;
 }
@@ -65,9 +53,6 @@
     transform: scale(1.05);
 }
 
-/* ============================================
-   TODAY HIGHLIGHT
-   ============================================ */
 .fc-day-today .fc-daygrid-day-frame {
     background: #f6efff !important;
     border-radius: 14px !important;
@@ -79,23 +64,16 @@
     font-weight: 700 !important;
 }
 
-/* ============================================
-   WEEKEND COLORS (Saturday + Sunday)
-   ============================================ */
 .fc-day-sat .fc-daygrid-day-number,
 .fc-day-sun .fc-daygrid-day-number {
     color: #5577ff !important;
 }
 
-/* subtle highlight */
 .fc-day-sat .fc-daygrid-day-frame,
 .fc-day-sun .fc-daygrid-day-frame {
     border-radius: 12px !important;
 }
 
-/* ============================================
-   GRID + CELL SPACING
-   ============================================ */
 .fc-daygrid-day-frame {
     padding: 12px !important;
     transition: 0.25s ease;
@@ -110,9 +88,6 @@
     border: none !important;
 }
 
-/* ============================================
-   EVENT STYLE (Purple rounded pills)
-   ============================================ */
 .fc-event {
     background: var(--purple) !important;
     border-radius: 8px !important;
@@ -132,9 +107,6 @@
     padding: 5px 8px !important;
 }
 
-/* ============================================
-   BUTTON STYLES (Day / Week / Month / Today)
-   ============================================ */
 .btn-outline-purple {
     border: 1px solid var(--purple);
     color: var(--purple);

@@ -21,7 +21,6 @@ namespace Semestralka.Controllers
                 : (Guid?)null;
 
 
-        // GET /calendar/share/{calendarId}
         [HttpGet("{calendarId}")]
         public async Task<IActionResult> Index(Guid calendarId)
         {
@@ -37,8 +36,6 @@ namespace Semestralka.Controllers
             return View(cal);
         }
 
-
-        // POST /calendar/share/{calendarId}
         [HttpPost("{calendarId}")]
         public async Task<IActionResult> Share(Guid calendarId, string email, string permission)
         {
@@ -63,7 +60,6 @@ namespace Semestralka.Controllers
                 return Redirect($"/calendar/share/{calendarId}");
             }
 
-            // už sdílíš?
             var existing = await _db.CalendarShares
                 .FirstOrDefaultAsync(s => s.CalendarId == calendarId && s.UserId == user.Id);
 
@@ -81,7 +77,7 @@ namespace Semestralka.Controllers
             }
             else
             {
-                existing.Permission = permission; // update práv
+                existing.Permission = permission;
             }
 
             await _db.SaveChangesAsync();
@@ -90,8 +86,6 @@ namespace Semestralka.Controllers
             return Redirect($"/calendar/share/{calendarId}");
         }
 
-
-        // DELETE /calendar/share/remove/{id}
         [HttpGet("remove/{id}")]
         public async Task<IActionResult> Remove(Guid id)
         {

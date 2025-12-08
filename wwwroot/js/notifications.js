@@ -6,15 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const notifPanel = document.getElementById("notif-panel");
     const notifList = document.getElementById("notif-list");
     const notifBadge = document.getElementById("notif-badge");
-
-    // === SOUND ===
     const notifSound = new Audio("/sounds/notif.mp3");
 
-    // previous notification IDs to detect new ones
     let knownIds = new Set();
 
-
-    // ==== TOGGLE PANEL ====
     notifBtn?.addEventListener("click", () => {
         notifPanel.style.display =
             notifPanel.style.display === "block" ? "none" : "block";
@@ -26,8 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-
-    // ==== LOAD NOTIFICATIONS ====
     async function loadNotifications() {
         try {
             const res = await fetch("/api/notifications");
@@ -45,8 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-
-    // ==== DETECT NEW ====
     function detectNewNotifications(list) {
         const currentIds = new Set(list.map(n => n.id));
 
@@ -59,8 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
         knownIds = currentIds;
     }
 
-
-    // ==== RENDER NOTIFICATIONS ====
     function renderNotifications(list) {
 
         const unread = list.filter(n => !n.isRead).length;
@@ -92,7 +81,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 <button class="notif-delete-btn" data-id="${n.id}">×</button>
             `;
 
-            // mark read on click
             div.addEventListener("click", () => markRead(n.id));
 
             notifList.appendChild(div);
@@ -114,14 +102,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    // MARK READ
     async function markRead(id) {
         await fetch(`/api/notifications/read/${id}`, { method: "POST" });
         loadNotifications();
     }
 
 
-    // AUTO REFRESH
     loadNotifications();
     setInterval(loadNotifications, 15000);
 });

@@ -1,0 +1,25 @@
+@{
+    Layout = null;
+}
+
+<link rel="stylesheet" href="/css/auth.css" />
+
+<div class="bg-blob blob-a"></div>
+<div class="bg-blob blob-b"></div>
+
+<div class="auth-card-wrapper">
+    <div class="auth-card">
+
+        <h2>Registrace</h2>
+        <p>Vytvořte si nový účet.</p>
+
+        <form method="post" action="/register">
+            <input type="text" name="FullName" placeholder="Jméno" required />
+            <input type="email" name="Email" placeholder="Email" required />
+            <input type="password" name="Password" placeholder="Heslo" required />
+            <button class="auth-btn">Registrovat</button>
+        </form>
+
+        <a href="/login" class="auth-link">Už máte účet? Přihlaste se</a>
+    </div>
+</div>

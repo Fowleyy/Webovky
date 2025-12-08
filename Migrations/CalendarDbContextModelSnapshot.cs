@@ -34,12 +34,7 @@ namespace Semestralka.Migrations
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Visibility")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
@@ -83,6 +78,9 @@ namespace Semestralka.Migrations
                     b.Property<Guid>("CalendarId")
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("char(36)");
+
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
@@ -106,7 +104,28 @@ namespace Semestralka.Migrations
 
                     b.HasIndex("CalendarId");
 
+                    b.HasIndex("CategoryId");
+
                     b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("Semestralka.Models.EventCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Semestralka.Models.Notification", b =>
@@ -177,18 +196,18 @@ namespace Semestralka.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("FullName")
                         .HasColumnType("longtext");
 
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("PasswordHash")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("TimeZone")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
@@ -237,7 +256,13 @@ namespace Semestralka.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Semestralka.Models.EventCategory", "Category")
+                        .WithMany("Events")
+                        .HasForeignKey("CategoryId");
+
                     b.Navigation("Calendar");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Semestralka.Models.Participant", b =>
@@ -261,6 +286,11 @@ namespace Semestralka.Migrations
             modelBuilder.Entity("Semestralka.Models.Event", b =>
                 {
                     b.Navigation("Participants");
+                });
+
+            modelBuilder.Entity("Semestralka.Models.EventCategory", b =>
+                {
+                    b.Navigation("Events");
                 });
 
             modelBuilder.Entity("Semestralka.Models.User", b =>
