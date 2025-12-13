@@ -1,0 +1,15 @@
+/home/daniel/Desktop/Projekt/Semestralka.Business/obj/Debug/net9.0/Semestralka.Business.csproj.AssemblyReference.cache
+/home/daniel/Desktop/Projekt/Semestralka.Business/obj/Debug/net9.0/Semestralka.Business.GeneratedMSBuildEditorConfig.editorconfig
+/home/daniel/Desktop/Projekt/Semestralka.Business/obj/Debug/net9.0/Semestralka.Business.AssemblyInfoInputs.cache
+/home/daniel/Desktop/Projekt/Semestralka.Business/obj/Debug/net9.0/Semestralka.Business.AssemblyInfo.cs
+/home/daniel/Desktop/Projekt/Semestralka.Business/obj/Debug/net9.0/Semestralka.Business.csproj.CoreCompileInputs.cache
+/home/daniel/Desktop/Projekt/Semestralka.Business/bin/Debug/net9.0/Semestralka.Business.deps.json
+/home/daniel/Desktop/Projekt/Semestralka.Business/bin/Debug/net9.0/Semestralka.Business.dll
+/home/daniel/Desktop/Projekt/Semestralka.Business/bin/Debug/net9.0/Semestralka.Business.pdb
+/home/daniel/Desktop/Projekt/Semestralka.Business/bin/Debug/net9.0/Semestralka.Data.dll
+/home/daniel/Desktop/Projekt/Semestralka.Business/bin/Debug/net9.0/Semestralka.Data.pdb
+/home/daniel/Desktop/Projekt/Semestralka.Business/obj/Debug/net9.0/Semestra.CCADFAEF.Up2Date
+/home/daniel/Desktop/Projekt/Semestralka.Business/obj/Debug/net9.0/Semestralka.Business.dll
+/home/daniel/Desktop/Projekt/Semestralka.Business/obj/Debug/net9.0/refint/Semestralka.Business.dll
+/home/daniel/Desktop/Projekt/Semestralka.Business/obj/Debug/net9.0/Semestralka.Business.pdb
+/home/daniel/Desktop/Projekt/Semestralka.Business/obj/Debug/net9.0/ref/Semestralka.Business.dll
