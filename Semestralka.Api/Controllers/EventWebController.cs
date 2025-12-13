@@ -125,7 +125,6 @@ namespace Semestralka.Controllers
             _db.Events.Add(model);
             await _db.SaveChangesAsync();
 
-            // 🔔 Notification – Created
             _db.Notifications.Add(new Notification
             {
                 Id = Guid.NewGuid(),
@@ -210,7 +209,6 @@ namespace Semestralka.Controllers
 
             await _db.SaveChangesAsync();
 
-            // 🔔 Notification – Updated
             _db.Notifications.Add(new Notification
             {
                 Id = Guid.NewGuid(),
@@ -254,7 +252,6 @@ namespace Semestralka.Controllers
             _db.Events.Remove(ev);
             await _db.SaveChangesAsync();
 
-            // 🔔 Notification – Deleted
             _db.Notifications.Add(new Notification
             {
                 Id = Guid.NewGuid(),
@@ -295,22 +292,24 @@ namespace Semestralka.Controllers
 
             return View("List", events);
         }
-        private IActionResult RedirectToCalendar(Event ev, User user)
+        private IActionResult RedirectToCalendar(Event ev, User currentUser)
         {
             var ownerId = ev.Calendar.OwnerId;
             var calendarId = ev.Calendar.Id;
 
-            // 🟣 ADMIN -> admin kalendář
-            if (user.IsAdmin)
+            if (currentUser.IsAdmin && ownerId != currentUser.Id)
+            {
                 return Redirect($"/admin/calendar/{ownerId}");
+            }
 
-            // 🔵 Sdílený kalendář (nejsem owner)
-            if (ownerId != user.Id)
+            if (ownerId != currentUser.Id)
+            {
                 return Redirect($"/calendar/{calendarId}");
+            }
 
-            // 🟢 Můj vlastní kalendář
             return Redirect("/");
         }
+
 
     }
 }

@@ -17,7 +17,7 @@ namespace Semestralka.Controllers
         private bool IsAdmin =>
             HttpContext.Session.GetString("isAdmin") == "1";
 
-        private IActionResult RequireAdmin()
+        private IActionResult? RequireAdmin()
         {
             if (!IsAdmin)
                 return Unauthorized();
@@ -25,7 +25,7 @@ namespace Semestralka.Controllers
         }
 
         [HttpGet("/admin")]
-        public async Task<IActionResult> Index(string search)
+        public async Task<IActionResult> Index(string? search)
         {
             var check = RequireAdmin();
             if (check != null) return check;
@@ -36,8 +36,8 @@ namespace Semestralka.Controllers
             {
                 string s = search.ToLower();
                 users = users.Where(x =>
-                    x.Email.ToLower().Contains(s) ||
-                    x.FullName.ToLower().Contains(s));
+                    (x.Email ?? "").ToLower().Contains(s) ||
+                    (x.FullName ?? "").ToLower().Contains(s));
             }
 
             ViewBag.Search = search;
@@ -72,15 +72,17 @@ namespace Semestralka.Controllers
                 .FirstOrDefaultAsync(c => c.OwnerId == userId);
 
             if (calendar == null)
-            {
                 return Content("Tento uživatel nemá žádný kalendář.");
-            }
 
             return View("AdminCalendar", calendar);
         }
+
         [HttpPost("/admin/toggle-admin/{id}")]
         public async Task<IActionResult> ToggleAdmin(Guid id)
         {
+            var check = RequireAdmin();
+            if (check != null) return check;
+
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (user == null) return NotFound();
 
@@ -89,6 +91,5 @@ namespace Semestralka.Controllers
 
             return Redirect("/admin");
         }
-
     }
 }

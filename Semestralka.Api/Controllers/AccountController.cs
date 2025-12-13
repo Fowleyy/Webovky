@@ -17,7 +17,6 @@ namespace Semestralka.Controllers
         [HttpGet("/login")]
         public IActionResult Login()
         {
-            // Pokud je uživatel už přihlášen, rovnou domů
             if (HttpContext.Session.GetString("userid") != null)
                 return Redirect("/");
 
@@ -36,7 +35,7 @@ namespace Semestralka.Controllers
             }
 
             HttpContext.Session.SetString("userid", user.Id.ToString());
-            HttpContext.Session.SetString("email", user.Email);
+            HttpContext.Session.SetString("email", user.Email ?? "");
             HttpContext.Session.SetString("fullname", user.FullName ?? "Uživatel");
             HttpContext.Session.SetString("avatar", user.AvatarPath ?? "/avatars/default.png");
             HttpContext.Session.SetString("isAdmin", user.IsAdmin ? "1" : "0");
@@ -45,10 +44,7 @@ namespace Semestralka.Controllers
         }
 
         [HttpGet("/register")]
-        public IActionResult Register()
-        {
-            return View();
-        }
+        public IActionResult Register() => View();
 
         [HttpPost("/register")]
         public async Task<IActionResult> RegisterPost(string fullname, string email, string password)
@@ -89,12 +85,11 @@ namespace Semestralka.Controllers
 
             HttpContext.Session.SetString("userid", user.Id.ToString());
             HttpContext.Session.SetString("email", user.Email);
-            HttpContext.Session.SetString("fullname", user.FullName);
+            HttpContext.Session.SetString("fullname", user.FullName ?? "Uživatel");
             HttpContext.Session.SetString("avatar", user.AvatarPath);
 
             return Redirect("/");
         }
-
 
         [HttpGet("logout")]
         public IActionResult Logout()
@@ -102,6 +97,5 @@ namespace Semestralka.Controllers
             HttpContext.Session.Clear();
             return Redirect("/login");
         }
-
     }
 }

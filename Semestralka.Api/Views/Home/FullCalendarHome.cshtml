@@ -4,15 +4,21 @@
 @{
     ViewData["Title"] = "Kalendář";
 
-    var currentUserId = HttpContextAccessor.HttpContext.Session.GetString("userid");
-    bool isOwner = (currentUserId != null && Model.OwnerId.ToString() == currentUserId);
+    if (Model == null)
+    {
+        <p>Kalendář není dostupný.</p>
+        return;
+    }
+
+    var currentUserId = HttpContextAccessor.HttpContext?.Session.GetString("userid");
+    bool isOwner = currentUserId != null && Model.OwnerId.ToString() == currentUserId;
 
     string calendarTitle = isOwner
         ? "Můj kalendář"
         : $"Sdílený kalendář – {Model.Owner?.FullName}";
 
     string permission = "read";
-    if (!isOwner)
+    if (!isOwner && currentUserId != null)
     {
         var shared = Model.SharedWith?.FirstOrDefault(s => s.UserId.ToString() == currentUserId);
         if (shared != null)
@@ -22,34 +28,31 @@
     bool canEdit = isOwner || permission == "edit";
 }
 
-    <div class="calendar-topbar d-flex align-items-center justify-content-between mb-3">
+<div class="calendar-topbar d-flex align-items-center justify-content-between mb-3">
 
-        <div class="d-flex align-items-center gap-3">
-            <button id="cal-prev" class="cal-nav">&lsaquo;</button>
-        </div>
-
-        <div class="calendar-title" id="cal-title">–</div>
-
-        <div class="d-flex align-items-center gap-3">
-            <button id="cal-next" class="cal-nav">&rsaquo;</button>
-
-            <button id="cal-day" class="btn btn-outline-purple">Den</button>
-            <button id="cal-week" class="btn btn-outline-purple">Týden</button>
-            <button id="cal-month" class="btn btn-purple">Měsíc</button>
-
-            @if (isOwner)
-            {
-                <a class="btn btn-outline-primary" href="/calendar/share/@Model.Id">🤝 Sdílet</a>
-            }
-        </div>
-
+    <div class="d-flex align-items-center gap-3">
+        <button id="cal-prev" class="cal-nav">&lsaquo;</button>
     </div>
 
+    <div class="calendar-title" id="cal-title">–</div>
 
+    <div class="d-flex align-items-center gap-3">
+        <button id="cal-next" class="cal-nav">&rsaquo;</button>
+
+        <button id="cal-day" class="btn btn-outline-purple">Den</button>
+        <button id="cal-week" class="btn btn-outline-purple">Týden</button>
+        <button id="cal-month" class="btn btn-purple">Měsíc</button>
+
+        @if (isOwner)
+        {
+            <a class="btn btn-outline-purple" href="/calendar/share/@Model.Id">🤝 Sdílet</a>
+        }
+    </div>
+
+</div>
 
 <div id="calendar" class="mb-4"></div>
 
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
 
 <script>

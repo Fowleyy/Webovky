@@ -37,9 +37,6 @@ namespace Semestralka.Controllers
             return await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        // =====================================================================================
-        // GET /api/events?calendarId=XYZ  – všichni co mají přístup
-        // =====================================================================================
         [HttpGet]
         public async Task<IActionResult> GetEvents(Guid calendarId)
         {
@@ -78,9 +75,6 @@ namespace Semestralka.Controllers
             return Ok(events);
         }
 
-        // =====================================================================================
-        // CREATE
-        // =====================================================================================
         [HttpPost]
         public async Task<IActionResult> Create(Event dto)
         {
@@ -134,10 +128,6 @@ namespace Semestralka.Controllers
             return Ok(new { ev.Id });
         }
 
-
-        // =====================================================================================
-        // UPDATE
-        // =====================================================================================
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, Event dto)
         {
@@ -170,7 +160,6 @@ namespace Semestralka.Controllers
 
             await _db.SaveChangesAsync();
 
-            // 🔔 Notification – Updated
             _db.Notifications.Add(new Notification
             {
                 Id = Guid.NewGuid(),
@@ -186,10 +175,6 @@ namespace Semestralka.Controllers
             return Ok(new { message = "Updated." });
         }
 
-
-        // =====================================================================================
-        // DELETE
-        // =====================================================================================
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {

@@ -18,8 +18,7 @@ namespace Semestralka.Controllers
         private Guid? UserId =>
             HttpContext.Session.GetString("userid") is string id
                 ? Guid.Parse(id)
-                : (Guid?)null;
-
+                : null;
 
         [HttpGet("{calendarId}")]
         public async Task<IActionResult> Index(Guid calendarId)
@@ -27,8 +26,11 @@ namespace Semestralka.Controllers
             if (UserId == null) return Redirect("/login");
 
             var cal = await _db.Calendars
-                .Include(c => c.SharedWith).ThenInclude(s => s.User)
-                .FirstOrDefaultAsync(c => c.Id == calendarId && c.OwnerId == UserId);
+                .Include(c => c.SharedWith)
+                    .ThenInclude(s => s.User)
+                .FirstOrDefaultAsync(c =>
+                    c.Id == calendarId &&
+                    c.OwnerId == UserId);
 
             if (cal == null)
                 return Unauthorized();
@@ -42,11 +44,15 @@ namespace Semestralka.Controllers
             if (UserId == null) return Redirect("/login");
 
             var calendar = await _db.Calendars
-                .FirstOrDefaultAsync(c => c.Id == calendarId && c.OwnerId == UserId);
+                .FirstOrDefaultAsync(c =>
+                    c.Id == calendarId &&
+                    c.OwnerId == UserId);
 
-            if (calendar == null) return Unauthorized();
+            if (calendar == null)
+                return Unauthorized();
 
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email.ToLower());
+            var user = await _db.Users
+                .FirstOrDefaultAsync(u => u.Email == email.ToLower());
 
             if (user == null)
             {
@@ -61,7 +67,9 @@ namespace Semestralka.Controllers
             }
 
             var existing = await _db.CalendarShares
-                .FirstOrDefaultAsync(s => s.CalendarId == calendarId && s.UserId == user.Id);
+                .FirstOrDefaultAsync(s =>
+                    s.CalendarId == calendarId &&
+                    s.UserId == user.Id);
 
             if (existing == null)
             {
@@ -93,15 +101,17 @@ namespace Semestralka.Controllers
 
             var entry = await _db.CalendarShares
                 .Include(s => s.Calendar)
-                .FirstOrDefaultAsync(s => s.Id == id && s.Calendar.OwnerId == UserId);
+                .FirstOrDefaultAsync(s => s.Id == id);
 
-            if (entry != null)
-            {
-                _db.CalendarShares.Remove(entry);
-                await _db.SaveChangesAsync();
-            }
+            if (entry == null || entry.Calendar == null || entry.Calendar.OwnerId != UserId)
+                return Redirect("/calendar");
 
-            return Redirect($"/calendar/share/{entry.CalendarId}");
+            var calendarId = entry.CalendarId;
+            _db.CalendarShares.Remove(entry);
+            await _db.SaveChangesAsync();
+
+            return Redirect($"/calendar/share/{calendarId}");
+
         }
     }
 }

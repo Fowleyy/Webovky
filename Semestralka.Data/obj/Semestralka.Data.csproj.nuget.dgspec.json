@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/daniel/Desktop/Projekt/Semestralka.Data/Semestralka.Data.csproj": {}
+    "/home/daniel/Documents/GitHub/Webovky/Semestralka.Data/Semestralka.Data.csproj": {}
   },
   "projects": {
-    "/home/daniel/Desktop/Projekt/Semestralka.Data/Semestralka.Data.csproj": {
+    "/home/daniel/Documents/GitHub/Webovky/Semestralka.Data/Semestralka.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/daniel/Desktop/Projekt/Semestralka.Data/Semestralka.Data.csproj",
+        "projectUniqueName": "/home/daniel/Documents/GitHub/Webovky/Semestralka.Data/Semestralka.Data.csproj",
         "projectName": "Semestralka.Data",
-        "projectPath": "/home/daniel/Desktop/Projekt/Semestralka.Data/Semestralka.Data.csproj",
+        "projectPath": "/home/daniel/Documents/GitHub/Webovky/Semestralka.Data/Semestralka.Data.csproj",
         "packagesPath": "/home/daniel/.nuget/packages/",
-        "outputPath": "/home/daniel/Desktop/Projekt/Semestralka.Data/obj/",
+        "outputPath": "/home/daniel/Documents/GitHub/Webovky/Semestralka.Data/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/daniel/.nuget/NuGet/NuGet.Config"

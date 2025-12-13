@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "wstQdylPZ9U=",
+  "dgSpecHash": "ZDYVcXvVO5w=",
   "success": true,
-  "projectFilePath": "/home/daniel/Desktop/Projekt/Semestralka.Api/Semestralka.Api.csproj",
+  "projectFilePath": "/home/daniel/Documents/GitHub/Webovky/Semestralka.Api/Semestralka.Api.csproj",
   "expectedPackageFiles": [
     "/home/daniel/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512",
     "/home/daniel/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/9.0.0/microsoft.aspnetcore.authentication.jwtbearer.9.0.0.nupkg.sha512",

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "7sB0lFLJCrQ=",
+  "dgSpecHash": "tkPlKysnqAs=",
   "success": true,
-  "projectFilePath": "/home/daniel/Desktop/Projekt/Semestralka.Business/Semestralka.Business.csproj",
+  "projectFilePath": "/home/daniel/Documents/GitHub/Webovky/Semestralka.Business/Semestralka.Business.csproj",
   "expectedPackageFiles": [
     "/home/daniel/.nuget/packages/microsoft.entityframeworkcore/9.0.0/microsoft.entityframeworkcore.9.0.0.nupkg.sha512",
     "/home/daniel/.nuget/packages/microsoft.entityframeworkcore.abstractions/9.0.0/microsoft.entityframeworkcore.abstractions.9.0.0.nupkg.sha512",

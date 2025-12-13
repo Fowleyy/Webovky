@@ -923,11 +923,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/daniel/Desktop/Projekt/Semestralka.Business/Semestralka.Business.csproj",
+      "projectUniqueName": "/home/daniel/Documents/GitHub/Webovky/Semestralka.Business/Semestralka.Business.csproj",
       "projectName": "Semestralka.Business",
-      "projectPath": "/home/daniel/Desktop/Projekt/Semestralka.Business/Semestralka.Business.csproj",
+      "projectPath": "/home/daniel/Documents/GitHub/Webovky/Semestralka.Business/Semestralka.Business.csproj",
       "packagesPath": "/home/daniel/.nuget/packages/",
-      "outputPath": "/home/daniel/Desktop/Projekt/Semestralka.Business/obj/",
+      "outputPath": "/home/daniel/Documents/GitHub/Webovky/Semestralka.Business/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/daniel/.nuget/NuGet/NuGet.Config"
@@ -942,8 +942,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "/home/daniel/Desktop/Projekt/Semestralka.Data/Semestralka.Data.csproj": {
-              "projectPath": "/home/daniel/Desktop/Projekt/Semestralka.Data/Semestralka.Data.csproj"
+            "/home/daniel/Documents/GitHub/Webovky/Semestralka.Data/Semestralka.Data.csproj": {
+              "projectPath": "/home/daniel/Documents/GitHub/Webovky/Semestralka.Data/Semestralka.Data.csproj"
             }
           }
         }

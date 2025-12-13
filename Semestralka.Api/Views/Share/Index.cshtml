@@ -3,8 +3,14 @@
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
-    var currentUserId = HttpContextAccessor.HttpContext.Session.GetString("userid");
-    bool isOwner = Model.OwnerId.ToString() == currentUserId;
+    if (Model == null)
+    {
+        <p>Kalendář není dostupný.</p>
+        return;
+    }
+
+    var currentUserId = HttpContextAccessor.HttpContext?.Session.GetString("userid");
+    bool isOwner = currentUserId != null && Model.OwnerId.ToString() == currentUserId;
 
     string calendarDisplayName = isOwner
         ? "Můj kalendář"
@@ -17,6 +23,7 @@
 {
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
+
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success">@TempData["Success"]</div>

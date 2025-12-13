@@ -19,7 +19,11 @@ namespace Semestralka.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var uid = HttpContext.Session.GetString("userid");
+            var http = HttpContext;
+            if (http == null)
+                return Redirect("/login");
+
+            var uid = http.Session.GetString("userid");
             if (uid == null)
                 return Redirect("/login");
 
@@ -43,15 +47,18 @@ namespace Semestralka.Controllers
                 await _db.SaveChangesAsync();
             }
 
-            HttpContext.Session.SetString("currentCalendarId", calendar.Id.ToString());
-
+            http.Session.SetString("currentCalendarId", calendar.Id.ToString());
             return View("FullCalendarHome", calendar);
         }
 
         [HttpGet("/shared-calendars")]
         public async Task<IActionResult> SharedCalendars()
         {
-            var uid = HttpContext.Session.GetString("userid");
+            var http = HttpContext;
+            if (http == null)
+                return Redirect("/login");
+
+            var uid = http.Session.GetString("userid");
             if (uid == null)
                 return Redirect("/login");
 
@@ -69,31 +76,32 @@ namespace Semestralka.Controllers
         [HttpGet("/calendar/{id}")]
         public async Task<IActionResult> ViewShared(Guid id)
         {
-            var uid = HttpContext.Session.GetString("userid");
+            var http = HttpContext;
+            if (http == null)
+                return Redirect("/login");
+
+            var uid = http.Session.GetString("userid");
             if (uid == null)
                 return Redirect("/login");
 
             var userId = Guid.Parse(uid);
 
-            var calendar = await _db.Calendars
+            var result = await _db.Calendars
                 .Include(c => c.Owner)
                 .Include(c => c.SharedWith)
-                .ThenInclude(s => s.User)
+                    .ThenInclude(s => s.User)
                 .Include(c => c.Events)
                 .FirstOrDefaultAsync(c =>
                     c.Id == id &&
                     (c.OwnerId == userId || c.SharedWith.Any(s => s.UserId == userId))
                 );
 
-            if (calendar == null)
+            if (result == null)
                 return Unauthorized();
 
-            HttpContext.Session.SetString("currentCalendarId", calendar.Id.ToString());
-
-            return View("FullCalendarHome", calendar);
+            http.Session.SetString("currentCalendarId", result.Id.ToString());
+            return View("FullCalendarHome", result);
         }
-
-
 
         public IActionResult Privacy()
         {
@@ -108,15 +116,13 @@ namespace Semestralka.Controllers
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
             });
         }
+
         public IActionResult Landing()
         {
-            if (HttpContext.Session.GetString("userid") != null)
+            if (HttpContext?.Session.GetString("userid") != null)
                 return RedirectToAction("Index");
 
             return View();
         }
-
-
-
     }
 }
