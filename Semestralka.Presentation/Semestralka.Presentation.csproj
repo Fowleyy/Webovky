@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+<ItemGroup>
+  <ProjectReference Include="..\Semestralka.Application\Semestralka.Application.csproj" />
+  <ProjectReference Include="..\Semestralka.Infrastructure\Semestralka.Infrastructure.csproj" />
+  <ProjectReference Include="..\Semestralka.Domain\Semestralka.Domain.csproj" />
+</ItemGroup>
+
+<ItemGroup>
+  <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.0" />
+  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0" />
+  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
+  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
+</ItemGroup>
+
+
+</Project>

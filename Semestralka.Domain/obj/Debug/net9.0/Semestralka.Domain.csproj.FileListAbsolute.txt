@@ -1,0 +1,11 @@
+D:\Plocha\test webovky\Semestralka.Domain\bin\Debug\net9.0\Semestralka.Domain.deps.json
+D:\Plocha\test webovky\Semestralka.Domain\bin\Debug\net9.0\Semestralka.Domain.dll
+D:\Plocha\test webovky\Semestralka.Domain\bin\Debug\net9.0\Semestralka.Domain.pdb
+D:\Plocha\test webovky\Semestralka.Domain\obj\Debug\net9.0\Semestralka.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Plocha\test webovky\Semestralka.Domain\obj\Debug\net9.0\Semestralka.Domain.AssemblyInfoInputs.cache
+D:\Plocha\test webovky\Semestralka.Domain\obj\Debug\net9.0\Semestralka.Domain.AssemblyInfo.cs
+D:\Plocha\test webovky\Semestralka.Domain\obj\Debug\net9.0\Semestralka.Domain.csproj.CoreCompileInputs.cache
+D:\Plocha\test webovky\Semestralka.Domain\obj\Debug\net9.0\Semestralka.Domain.dll
+D:\Plocha\test webovky\Semestralka.Domain\obj\Debug\net9.0\refint\Semestralka.Domain.dll
+D:\Plocha\test webovky\Semestralka.Domain\obj\Debug\net9.0\Semestralka.Domain.pdb
+D:\Plocha\test webovky\Semestralka.Domain\obj\Debug\net9.0\ref\Semestralka.Domain.dll

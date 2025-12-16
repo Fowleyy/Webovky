@@ -1,0 +1,50 @@
+@model IEnumerable<Semestralka.Domain.Entities.Event>
+
+@{
+    ViewData["Title"] = "Události";
+}
+
+<h2 class="fw-bold mb-4">Události</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Zatím nemáte žádné události.
+    </div>
+}
+else
+{
+    <div class="list-group">
+
+        @foreach (var ev in Model)
+        {
+            <div class="list-group-item shadow-sm mb-2" style="border-radius: 12px;">
+                <div class="d-flex justify-content-between">
+                    
+                    <div>
+                        <h5 class="fw-bold">@ev.Title</h5>
+                        <div class="text-muted">
+                            @ev.StartTime.ToString("d.M.yyyy HH:mm") –
+                            @ev.EndTime.ToString("d.M.yyyy HH:mm")
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(ev.Location))
+                        {
+                            <div><small>Místo: @ev.Location</small></div>
+                        }
+                    </div>
+
+                    <div class="d-flex flex-column gap-2">
+                        <a class="btn btn-outline-purple btn-sm" href="/event/edit/@ev.Id">Upravit</a>
+                        <a class="btn btn-danger btn-sm" href="/event/delete/@ev.Id"
+                           onclick="return confirm('Opravdu smazat tuto událost?')">
+                            Smazat
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        }
+
+    </div>
+}

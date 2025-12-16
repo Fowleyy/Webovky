@@ -1,0 +1,10 @@
+D:\Plocha\test webovky\Semestralka.Presentation\obj\Debug\net9.0\Semestralka.Api.csproj.AssemblyReference.cache
+D:\Plocha\test webovky\Semestralka.Presentation\obj\Debug\net9.0\rpswa.dswa.cache.json
+D:\Plocha\test webovky\Semestralka.Presentation\obj\Debug\net9.0\Semestralka.Api.GeneratedMSBuildEditorConfig.editorconfig
+D:\Plocha\test webovky\Semestralka.Presentation\obj\Debug\net9.0\Semestralka.Api.AssemblyInfoInputs.cache
+D:\Plocha\test webovky\Semestralka.Presentation\obj\Debug\net9.0\Semestralka.Api.AssemblyInfo.cs
+D:\Plocha\test webovky\Semestralka.Presentation\obj\Debug\net9.0\Semestralka.Api.csproj.CoreCompileInputs.cache
+D:\Plocha\test webovky\Semestralka.Presentation\obj\Debug\net9.0\Semestralka.Api.MvcApplicationPartsAssemblyInfo.cs
+D:\Plocha\test webovky\Semestralka.Presentation\obj\Debug\net9.0\Semestralka.Api.MvcApplicationPartsAssemblyInfo.cache
+D:\Plocha\test webovky\Semestralka.Presentation\obj\Debug\net9.0\Semestralka.Api.RazorAssemblyInfo.cache
+D:\Plocha\test webovky\Semestralka.Presentation\obj\Debug\net9.0\Semestralka.Api.RazorAssemblyInfo.cs

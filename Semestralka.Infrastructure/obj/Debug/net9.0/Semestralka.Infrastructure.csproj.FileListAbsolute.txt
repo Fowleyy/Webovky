@@ -1,0 +1,17 @@
+D:\Plocha\test webovky\Semestralka.Infrastructure\bin\Debug\net9.0\Semestralka.Infrastructure.deps.json
+D:\Plocha\test webovky\Semestralka.Infrastructure\bin\Debug\net9.0\Semestralka.Infrastructure.dll
+D:\Plocha\test webovky\Semestralka.Infrastructure\bin\Debug\net9.0\Semestralka.Infrastructure.pdb
+D:\Plocha\test webovky\Semestralka.Infrastructure\bin\Debug\net9.0\Semestralka.Application.dll
+D:\Plocha\test webovky\Semestralka.Infrastructure\bin\Debug\net9.0\Semestralka.Domain.dll
+D:\Plocha\test webovky\Semestralka.Infrastructure\bin\Debug\net9.0\Semestralka.Domain.pdb
+D:\Plocha\test webovky\Semestralka.Infrastructure\bin\Debug\net9.0\Semestralka.Application.pdb
+D:\Plocha\test webovky\Semestralka.Infrastructure\obj\Debug\net9.0\Semestralka.Infrastructure.csproj.AssemblyReference.cache
+D:\Plocha\test webovky\Semestralka.Infrastructure\obj\Debug\net9.0\Semestralka.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+D:\Plocha\test webovky\Semestralka.Infrastructure\obj\Debug\net9.0\Semestralka.Infrastructure.AssemblyInfoInputs.cache
+D:\Plocha\test webovky\Semestralka.Infrastructure\obj\Debug\net9.0\Semestralka.Infrastructure.AssemblyInfo.cs
+D:\Plocha\test webovky\Semestralka.Infrastructure\obj\Debug\net9.0\Semestralka.Infrastructure.csproj.CoreCompileInputs.cache
+D:\Plocha\test webovky\Semestralka.Infrastructure\obj\Debug\net9.0\Semestra.B5262D7F.Up2Date
+D:\Plocha\test webovky\Semestralka.Infrastructure\obj\Debug\net9.0\Semestralka.Infrastructure.dll
+D:\Plocha\test webovky\Semestralka.Infrastructure\obj\Debug\net9.0\refint\Semestralka.Infrastructure.dll
+D:\Plocha\test webovky\Semestralka.Infrastructure\obj\Debug\net9.0\Semestralka.Infrastructure.pdb
+D:\Plocha\test webovky\Semestralka.Infrastructure\obj\Debug\net9.0\ref\Semestralka.Infrastructure.dll

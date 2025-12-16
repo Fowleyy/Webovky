@@ -1,0 +1,73 @@
+@model Semestralka.Domain.Entities.User
+
+@{
+    ViewData["Title"] = "Nastavení";
+    Layout = "_Layout";
+}
+
+<h2 class="fw-bold mb-4">Nastavení účtu</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success mb-3">@TempData["Success"]</div>
+}
+
+<div class="settings-card">
+
+    <form method="post" enctype="multipart/form-data" action="/settings/update">
+        <div class="form-section">
+            <label class="section-title">Profilová fotka</label>
+
+            <div class="avatar-row">
+                <img src="@Model.AvatarPath" class="settings-avatar" />
+
+                <label class="upload-btn">
+                    📸 Nahrát novou fotku
+                    <input type="file" name="avatarUpload" accept="image/*" />
+                </label>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="form-section">
+            <label class="input-label">Jméno</label>
+            <input type="text" name="FullName" class="input-control" value="@Model.FullName" required />
+        </div>
+
+        <div class="form-section">
+            <label class="input-label">Email</label>
+            <input type="email" name="Email" class="input-control" value="@Model.Email" required />
+        </div>
+
+        <h5>Změna hesla</h5>
+        <div class="form-section mb-4">
+            
+
+            <label class="input-label mt-2">Staré heslo</label>
+            <input type="password" name="oldPassword" class="input-control" placeholder="Zadejte současné heslo" />
+
+            <label class="input-label mt-3">Nové heslo</label>
+            <input type="password" name="newPassword" class="input-control" placeholder="Nové heslo" />
+
+            <label class="input-label mt-3">Potvrdit nové heslo</label>
+            <input type="password" name="confirmPassword" class="input-control" placeholder="Znovu nové heslo" />
+
+            <div class="hint mt-1">
+                Pokud nechcete měnit heslo, nechte všechna pole prázdná.
+            </div>
+
+            @if (TempData["PasswordError"] != null)
+            {
+                <div class="error mt-2">@TempData["PasswordError"]</div>
+            }
+        </div>
+
+
+        <div class="settings-actions">
+            <button class="btn-save">💾 Uložit změny</button>
+        </div>
+
+    </form>
+
+</div>
