@@ -34,23 +34,24 @@
             </div>
         </div>
 
-        <div class="inline">
-            <div class="inline-item">
-                <label asp-for="Start"></label>
-                <input asp-for="Start"
-                       type="datetime-local"
-                       class="form-control"
-                       required />
-            </div>
-
-            <div class="inline-item">
-                <label asp-for="End"></label>
-                <input asp-for="End"
-                       type="datetime-local"
-                       class="form-control"
-                       required />
-            </div>
+        <div class="inline-item">
+            <label>Začátek</label>
+            <input asp-for="Start"
+                type="datetime-local"
+                class="form-control"
+                value="@Model.Start.ToLocalTime().ToString("yyyy-MM-ddTHH:mm")"
+                required />
         </div>
+
+        <div class="inline-item">
+            <label>Konec</label>
+            <input asp-for="End"
+                type="datetime-local"
+                class="form-control"
+                value="@Model.End.ToLocalTime().ToString("yyyy-MM-ddTHH:mm")"
+                required />
+        </div>
+
 
         <div class="row">
             <div class="col">

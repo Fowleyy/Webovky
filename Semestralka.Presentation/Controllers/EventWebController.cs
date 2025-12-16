@@ -63,10 +63,6 @@ public class EventWebController : Controller
         return View(ordered);
     }
 
-    // =========================
-    // CREATE - FORM
-    // GET /events/create/{calendarId}
-    // =========================
     [HttpGet("create/{calendarId}")]
     public IActionResult Create(Guid calendarId)
     {
@@ -81,10 +77,6 @@ public class EventWebController : Controller
         return View(model);
     }
 
-    // =========================
-    // CREATE - SUBMIT
-    // POST /events/create/{calendarId}
-    // =========================
     [HttpPost("create/{calendarId}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Guid calendarId, CreateEventDto dto)
@@ -108,12 +100,10 @@ public class EventWebController : Controller
         isAdmin
     );
 
-    // 🔥 vždy si načti kalendář
     var calendar = await _db.Calendars
         .AsNoTracking()
         .FirstAsync(c => c.Id == calendarId);
 
-    // 🔥 VŽDY OwnerId
     return Redirect($"/admin/calendar/{calendar.OwnerId}");
     }
 
@@ -203,6 +193,7 @@ public class EventWebController : Controller
         Guid userId = Guid.Parse(uid);
         bool isAdmin = HttpContext.Session.GetString("isAdmin") == "1";
 
+        // 1️⃣ načti událost
         var ev = await _db.Events
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Id == id);
@@ -210,11 +201,22 @@ public class EventWebController : Controller
         if (ev == null)
             return Redirect("/events");
 
+        // 2️⃣ smaž přes service
         await _eventService.DeleteAsync(id, userId, isAdmin);
 
-        if (isAdmin)
-            return Redirect($"/admin/calendar/{ev.CalendarId}");
+        // 3️⃣ načti kalendář KVŮLI OwnerId
+        var calendar = await _db.Calendars
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == ev.CalendarId);
 
-        return Redirect($"/calendar/{ev.CalendarId}");
+        if (calendar == null)
+            return Redirect("/events");
+
+        // 🔥 4️⃣ redirect VŽDY přes OwnerId
+        if (isAdmin)
+            return Redirect($"/admin/calendar/{calendar.OwnerId}");
+
+        return Redirect($"/calendar/{calendar.OwnerId}");
     }
+
 }
