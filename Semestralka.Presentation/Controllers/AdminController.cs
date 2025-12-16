@@ -5,91 +5,109 @@ using Semestralka.Infrastructure.Data.Persistence;
 
 namespace Semestralka.Presentation.Controllers;
 
+public class AdminController : Controller
+{
+    private readonly CalendarDbContext _db;
 
-    public class AdminController : Controller
+    public AdminController(CalendarDbContext db)
     {
-        private readonly CalendarDbContext _db;
-
-        public AdminController(CalendarDbContext db)
-        {
-            _db = db;
-        }
-
-        private bool IsAdmin =>
-            HttpContext.Session.GetString("isAdmin") == "1";
-        
-        private IActionResult? RequireAdmin()
-        {
-            if (!IsAdmin)
-                return Unauthorized();
-            return null;
-        }
-
-        [HttpGet("/admin")]
-        public async Task<IActionResult> Index(string? search)
-        {
-            var check = RequireAdmin();
-            if (check != null) return check;
-
-            var users = _db.Users.AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                string s = search.ToLower();
-                users = users.Where(x =>
-                    (x.Email ?? "").ToLower().Contains(s) ||
-                    (x.FullName ?? "").ToLower().Contains(s));
-            }
-
-            ViewBag.Search = search;
-            return View(await users.ToListAsync());
-        }
-
-        [HttpGet("/admin/delete-user/{id}")]
-        public async Task<IActionResult> DeleteUser(Guid id)
-        {
-            var check = RequireAdmin();
-            if (check != null) return check;
-
-            var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
-            if (user == null)
-                return NotFound();
-
-            _db.Users.Remove(user);
-            await _db.SaveChangesAsync();
-
-            return Redirect("/admin");
-        }
-
-        [HttpGet("/admin/calendar/{userId}")]
-        public async Task<IActionResult> UserCalendar(Guid userId)
-        {
-            var check = RequireAdmin();
-            if (check != null) return check;
-
-            var calendar = await _db.Calendars
-                .Include(c => c.Events)
-                .Include(c => c.Owner)
-                .FirstOrDefaultAsync(c => c.OwnerId == userId);
-
-            if (calendar == null)
-                return Content("Tento uživatel nemá žádný kalendář.");
-
-            return View("AdminCalendar", calendar);
-        }
-
-        [HttpPost("/admin/toggle-admin/{id}")]
-        public async Task<IActionResult> ToggleAdmin(Guid id)
-        {
-            var check = RequireAdmin();
-            if (check != null) return check;
-
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null) return NotFound();
-
-            user.IsAdmin = !user.IsAdmin;
-            await _db.SaveChangesAsync();
-
-            return Redirect("/admin");
-        }
+        _db = db;
     }
+
+    // =========================
+    // HELPERS
+    // =========================
+    private bool IsAdmin =>
+        HttpContext.Session.GetString("isAdmin") == "1";
+
+    private IActionResult? RequireAdmin()
+    {
+        if (!IsAdmin)
+            return Redirect("/login");
+        return null;
+    }
+
+    // =========================
+    // GET /admin
+    // =========================
+    public async Task<IActionResult> Index(string? search)
+    {
+        var check = RequireAdmin();
+        if (check != null) return check;
+
+        var users = _db.Users.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            string s = search.ToLower();
+            users = users.Where(u =>
+                (u.Email ?? "").ToLower().Contains(s) ||
+                (u.FullName ?? "").ToLower().Contains(s));
+        }
+
+        ViewBag.Search = search;
+        return View(await users.ToListAsync());
+    }
+
+    // =========================
+    // GET /admin/calendar/{id}
+    // =========================
+    public async Task<IActionResult> Calendar(Guid id)
+    {
+        var check = RequireAdmin();
+        if (check != null) return check;
+
+        // 🔥 NAJDI KALENDÁŘ PODLE OWNERA
+        var calendar = await _db.Calendars
+            .Include(c => c.Events)
+            .Include(c => c.Owner)
+            .FirstOrDefaultAsync(c => c.OwnerId == id);
+
+        if (calendar == null)
+            return NotFound("Kalendář neexistuje.");
+
+        return View("AdminCalendar", calendar);
+    }
+
+
+    // =========================
+    // POST /admin/delete-user/{id}
+    // =========================
+    [HttpPost]
+    public async Task<IActionResult> DeleteUser(Guid id)
+    {
+        var check = RequireAdmin();
+        if (check != null) return check;
+
+        var user = await _db.Users
+            .Include(u => u.Calendars)
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user == null)
+            return NotFound();
+
+        _db.Users.Remove(user);
+        await _db.SaveChangesAsync();
+
+        return Redirect("/admin");
+    }
+
+    // =========================
+    // POST /admin/toggle-admin/{id}
+    // =========================
+    [HttpPost]
+    public async Task<IActionResult> ToggleAdmin(Guid id)
+    {
+        var check = RequireAdmin();
+        if (check != null) return check;
+
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
+        if (user == null)
+            return NotFound();
+
+        user.IsAdmin = !user.IsAdmin;
+        await _db.SaveChangesAsync();
+
+        return Redirect("/admin");
+    }
+}

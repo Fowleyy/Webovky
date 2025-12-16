@@ -15,35 +15,38 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function loadEvents() {
-        const res = await fetch(`/api/events?calendarId=${CALENDAR_ID}`, {
-            credentials: "include",
-            headers: {
-                "Accept": "application/json"
-            }
-        });
-
-        if (!res.ok) {
-            console.error("Events load failed:", res.status);
-            return [];
+    const res = await fetch(`/api/events?calendarId=${CALENDAR_ID}`, {
+        credentials: "include",
+        headers: {
+            "Accept": "application/json"
         }
+    });
 
-        const data = await res.json();
-
-        // map backend Event → FullCalendar event
-        return data.map(e => ({
-            id: e.id,
-            title: e.title,
-            start: e.startTime,
-            end: e.endTime,
-            allDay: e.isAllDay === true,
-            backgroundColor: e.color ?? "#6b46c1",
-            borderColor: e.color ?? "#6b46c1",
-            extendedProps: {
-                description: e.description,
-                location: e.location
-            }
-        }));
+    if (!res.ok) {
+        console.error("Events load failed:", res.status);
+        return [];
     }
+
+    const data = await res.json();
+
+    // ✅ SPRÁVNÉ MAPOVÁNÍ PODLE API
+    return data.map(e => ({
+        id: e.id,
+        title: e.title,
+        start: e.start,      // ✅
+        end: e.end,          // ✅
+        allDay: e.allDay,    // ✅
+
+        backgroundColor: e.color ?? "#6b46c1",
+        borderColor: e.color ?? "#6b46c1",
+
+        extendedProps: {
+            description: e.description,
+            location: e.location
+        }
+    }));
+}
+
 
     function createElement(html) {
         const template = document.createElement("template");
@@ -107,12 +110,12 @@ document.addEventListener("DOMContentLoaded", function () {
     if (CAN_EDIT) {
         config.dateClick = function (info) {
             window.location.href =
-                `/event/create/${CALENDAR_ID}?start=${info.dateStr}`;
+                `/events/create/${CALENDAR_ID}?start=${info.dateStr}`;
         };
 
         config.eventClick = function (info) {
             window.location.href =
-                `/event/edit/${info.event.id}`;
+                `/events/edit/${info.event.id}`;
         };
     }
 

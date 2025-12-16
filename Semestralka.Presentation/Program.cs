@@ -9,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 const string JwtKey = "THIS_IS_THE_FINAL_TEST_KEY_1234567890_ABCDEF_0987654321";
 
+// =========================
+// SERVICES
+// =========================
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<CalendarDbContext>(options =>
@@ -42,7 +45,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddEndpointsApiExplorer();
+// services
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<EventService>();
 builder.Services.AddScoped<CalendarService>();
@@ -50,9 +53,10 @@ builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<ShareService>();
 builder.Services.AddScoped<SettingsService>();
 
-
+// =========================
+// APP
+// =========================
 var app = builder.Build();
-
 
 app.UseStaticFiles();
 app.UseRouting();
@@ -61,13 +65,20 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// 🔥 API CONTROLLERS (/api/...)
 app.MapControllers();
 
+// 🔥 ADMIN ROUTE – EXPLICITNĚ
+app.MapControllerRoute(
+    name: "admin",
+    pattern: "admin/{action=Index}/{id?}",
+    defaults: new { controller = "Admin" }
+);
+
+// 🔥 DEFAULT MVC
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Landing}/{id?}");
+    pattern: "{controller=Home}/{action=Landing}/{id?}"
+);
 
 app.Run();
-
-
-// DODĚLAT SLUŽBY A SERVEROVÉ VALIDACE

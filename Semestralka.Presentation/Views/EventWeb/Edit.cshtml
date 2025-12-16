@@ -1,4 +1,4 @@
-@model Semestralka.Domain.Entities.Event
+@model Semestralka.Application.DTOs.Event.UpdateEventDto
 
 @{
     ViewData["Title"] = "Upravit událost";
@@ -9,17 +9,20 @@
 
 <div class="event-form">
 
-    @if (ViewData["Error"] != null)
-    {
-        <div class="error mb-3">@ViewData["Error"]</div>
-    }
+    <!-- 🔥 NATVRDO ACTION, aby nevznikla 405 -->
+    <form action="/events/edit" method="post">
+        @Html.AntiForgeryToken()
 
-    <form method="post">
+        <!-- POVINNÉ -->
+        <input type="hidden" name="Id" value="@Model.Id" />
 
         <div class="row">
             <div class="col">
                 <label>Název události</label>
-                <input name="Title" type="text" value="@Model.Title" required />
+                <input name="Title"
+                       type="text"
+                       value="@Model.Title"
+                       required />
             </div>
         </div>
 
@@ -33,21 +36,27 @@
         <div class="inline">
             <div class="inline-item">
                 <label>Začátek</label>
-                <input name="StartTime" type="datetime-local"
-                       value="@Model.StartTime.ToString("yyyy-MM-ddTHH:mm")" required />
+                <input name="Start"
+                       type="datetime-local"
+                       value="@Model.Start.ToLocalTime().ToString("yyyy-MM-ddTHH:mm")"
+                       required />
             </div>
 
             <div class="inline-item">
                 <label>Konec</label>
-                <input name="EndTime" type="datetime-local"
-                       value="@Model.EndTime.ToString("yyyy-MM-ddTHH:mm")" required />
+                <input name="End"
+                       type="datetime-local"
+                       value="@Model.End.ToLocalTime().ToString("yyyy-MM-ddTHH:mm")"
+                       required />
             </div>
         </div>
 
         <div class="row">
             <div class="col">
                 <label>Místo</label>
-                <input name="Location" type="text" value="@Model.Location" />
+                <input name="Location"
+                       type="text"
+                       value="@Model.Location" />
             </div>
         </div>
 
@@ -63,11 +72,15 @@
                         {
                             if (cat.Id == Model.CategoryId)
                             {
-                                <option value="@cat.Id" selected>@cat.Name</option>
+                                <option value="@cat.Id" selected>
+                                    @cat.Name
+                                </option>
                             }
                             else
                             {
-                                <option value="@cat.Id">@cat.Name</option>
+                                <option value="@cat.Id">
+                                    @cat.Name
+                                </option>
                             }
                         }
                     }
@@ -76,24 +89,25 @@
         </div>
 
         <div class="checkbox">
-            <input type="checkbox" name="IsAllDay" value="true" @(Model.IsAllDay ? "checked" : "") />
+            <input type="checkbox"
+                   name="IsAllDay"
+                   value="true"
+                   @(Model.IsAllDay ? "checked" : "") />
             <label>Celodenní událost</label>
         </div>
 
         <div class="actions">
-            <a href="/event/delete/@Model.Id" 
-            class="btn btn-danger"
-            onclick="return confirm('Opravdu chceš smazat tuto událost?');">
+            <a href="/events/delete/@Model.Id"
+               class="btn btn-danger"
+               onclick="return confirm('Opravdu chceš smazat tuto událost?');">
                 Smazat
             </a>
 
-            <button class="btn btn-primary">Uložit změny</button>
+            <button type="submit" class="btn btn-primary">
+                Uložit změny
+            </button>
 
-            <a href="/" class="btn btn-outline">Zpět</a>
-
+            <a href="/events" class="btn btn-outline">Zpět</a>
         </div>
-
-
     </form>
-
 </div>

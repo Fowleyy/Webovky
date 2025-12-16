@@ -28,8 +28,14 @@
     bool canEdit = isOwner || permission == "edit";
 }
 
-<!-- 🔴 FULLCALENDAR CSS – MUSÍ BÝT -->
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/main.min.css" rel="stylesheet" />
+<!-- FullCalendar core -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
+
+<!-- FullCalendar plugins (POVINNÉ) -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/daygrid/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/timegrid/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/interaction/index.global.min.js"></script>
+
 
 <div class="calendar-topbar d-flex align-items-center justify-content-between mb-3">
 

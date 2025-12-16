@@ -1,45 +1,45 @@
 /* _content/Semestralka.Presentation/Views/Shared/_Layout.cshtml.rz.scp.css */
 
 
-a.navbar-brand[b-4ldjb4banh] {
+a.navbar-brand[b-vft1391gqs] {
   white-space: normal;
   text-align: center;
   word-break: break-all;
 }
 
-a[b-4ldjb4banh] {
+a[b-vft1391gqs] {
   color: #0077cc;
 }
 
-.btn-primary[b-4ldjb4banh] {
+.btn-primary[b-vft1391gqs] {
   color: #fff;
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
 
-.nav-pills .nav-link.active[b-4ldjb4banh], .nav-pills .show > .nav-link[b-4ldjb4banh] {
+.nav-pills .nav-link.active[b-vft1391gqs], .nav-pills .show > .nav-link[b-vft1391gqs] {
   color: #fff;
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
 
-.border-top[b-4ldjb4banh] {
+.border-top[b-vft1391gqs] {
   border-top: 1px solid #e5e5e5;
 }
-.border-bottom[b-4ldjb4banh] {
+.border-bottom[b-vft1391gqs] {
   border-bottom: 1px solid #e5e5e5;
 }
 
-.box-shadow[b-4ldjb4banh] {
+.box-shadow[b-vft1391gqs] {
   box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
-button.accept-policy[b-4ldjb4banh] {
+button.accept-policy[b-vft1391gqs] {
   font-size: 1rem;
   line-height: inherit;
 }
 
-.footer[b-4ldjb4banh] {
+.footer[b-vft1391gqs] {
   position: absolute;
   bottom: 0;
   width: 100%;

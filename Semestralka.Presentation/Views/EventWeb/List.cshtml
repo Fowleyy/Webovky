@@ -1,4 +1,5 @@
-@model IEnumerable<Semestralka.Domain.Entities.Event>
+@model IEnumerable<Semestralka.Application.DTOs.Event.CreateEventDto>
+
 
 @{
     ViewData["Title"] = "Události";
@@ -24,8 +25,8 @@ else
                     <div>
                         <h5 class="fw-bold">@ev.Title</h5>
                         <div class="text-muted">
-                            @ev.StartTime.ToString("d.M.yyyy HH:mm") –
-                            @ev.EndTime.ToString("d.M.yyyy HH:mm")
+                            @ev.Start.ToString("d.M.yyyy HH:mm")
+                            @ev.End.ToString("d.M.yyyy HH:mm")
                         </div>
 
                         @if (!string.IsNullOrWhiteSpace(ev.Location))
@@ -35,8 +36,8 @@ else
                     </div>
 
                     <div class="d-flex flex-column gap-2">
-                        <a class="btn btn-outline-purple btn-sm" href="/event/edit/@ev.Id">Upravit</a>
-                        <a class="btn btn-danger btn-sm" href="/event/delete/@ev.Id"
+                        <a class="btn btn-outline-purple btn-sm" href="/events/edit/@ev.Id">Upravit</a>
+                        <a class="btn btn-danger btn-sm" href="/events/delete/@ev.Id"
                            onclick="return confirm('Opravdu smazat tuto událost?')">
                             Smazat
                         </a>
