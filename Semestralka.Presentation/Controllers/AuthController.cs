@@ -1,82 +1,78 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Semestralka.Domain.Entities;
-using Semestralka.Infrastructure.Data.Persistence;
+using Semestralka.Infrastructure.Services;
 using Semestralka.Presentation.Models.DTOs;
 
-namespace Semestralka.Presentation.Controllers;
-
+namespace Semestralka.Presentation.Controllers
+{
     [ApiController]
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
-        private readonly CalendarDbContext _db;
+        private readonly AuthService _authService;
 
-        public AuthController(CalendarDbContext db)
+        public AuthController(AuthService authService)
         {
-            _db = db;
+            _authService = authService;
         }
 
         private const string JwtKey = "THIS_IS_THE_FINAL_TEST_KEY_1234567890_ABCDEF_0987654321";
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto dto)
+        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Email))
-                return BadRequest();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var email = dto.Email.Trim().ToLower();
-
-            if (await _db.Users.AnyAsync(x => x.Email == email))
-                return Conflict();
-
-            if (dto.Password == null || dto.Password.Length < 6)
-                return BadRequest();
-
-            var user = new User
+            try
             {
-                Id = Guid.NewGuid(),
-                Email = email,
-                FullName = dto.FullName,
-                TimeZone = dto.TimeZone,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password)
-            };
-
-            _db.Users.Add(user);
-            await _db.SaveChangesAsync();
-
-            return Ok();
+                await _authService.RegisterAsync(dto);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto dto)
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
-                return BadRequest();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var email = dto.Email.Trim().ToLower();
+            try
+            {
+                var user = await _authService.LoginAsync(dto);
 
-            var user = await _db.Users.SingleOrDefaultAsync(x => x.Email == email);
-            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-                return Unauthorized();
+                var token = GenerateToken(user);
 
-            var token = GenerateToken(user);
+                HttpContext.Session.SetString("userid", user.Id.ToString());
+                HttpContext.Session.SetString("email", user.Email ?? "");
+                HttpContext.Session.SetString("fullname", user.FullName ?? "Uživatel");
 
-            HttpContext.Session.SetString("userid", user.Id.ToString());
-            HttpContext.Session.SetString("email", user.Email ?? "");
-            HttpContext.Session.SetString("fullname", user.FullName ?? "Uživatel");
-
-            return Ok(new { token });
+                return Ok(new { token });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
         }
 
         private string GenerateToken(User user)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtKey));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(JwtKey)
+            );
+
+            var creds = new SigningCredentials(
+                key,
+                SecurityAlgorithms.HmacSha256
+            );
 
             var claims = new[]
             {
@@ -93,3 +89,4 @@ namespace Semestralka.Presentation.Controllers;
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
+}

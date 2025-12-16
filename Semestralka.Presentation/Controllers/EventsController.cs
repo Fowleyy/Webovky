@@ -1,217 +1,72 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Semestralka.Domain.Entities;
-using Semestralka.Infrastructure.Data.Persistence;
+using Semestralka.Infrastructure.Services;
 
-namespace Semestralka.Presentation.Controllers;
+namespace Semestralka.Presentation.Controllers
+{
+    public class EventsController : Controller
+    {
+        private readonly EventService _eventService;
 
-    [ApiController]
-    [Route("api/events")]
-    public class EventsController : ControllerBase
-    {   
-        private readonly CalendarDbContext _db;
-
-        public EventsController(CalendarDbContext db)
+        public EventsController(EventService eventService)
         {
-            _db = db;
-        }
-        private Guid? CurrentUserId
-        {
-            get
-            {
-                var sessionId = HttpContext.Session.GetString("userid");
-                if (sessionId != null) return Guid.Parse(sessionId);
-
-                var claim = User.FindFirst("userid")?.Value;
-                if (claim != null) return Guid.Parse(claim);
-
-                return null;
-            }
+            _eventService = eventService;
         }
 
-        private async Task<User?> GetCurrentUser()
+        public async Task<IActionResult> Index()
         {
-            var id = CurrentUserId;
-            if (id == null) return null;
-            return await _db.Users.FirstOrDefaultAsync(u => u.Id == id);
-        }
+            var userIdStr = HttpContext.Session.GetString("userid");
+            if (string.IsNullOrEmpty(userIdStr))
+                return RedirectToAction("Login", "Auth");
 
-        [HttpGet]
-        public async Task<IActionResult> GetEvents(Guid calendarId)
-        {
-            var userId = CurrentUserId;
-            if (userId == null)
-                return Unauthorized();
+            var userId = Guid.Parse(userIdStr);
 
-            var calendar = await _db.Calendars
-                .Include(c => c.SharedWith)
-                .FirstOrDefaultAsync(c => c.Id == calendarId);
-
-            if (calendar == null)
-                return NotFound();
-
-            var user = await GetCurrentUser();
-            bool hasAccess =
-                (user?.IsAdmin ?? false) ||
-                calendar.OwnerId == userId ||
-                calendar.SharedWith.Any(s => s.UserId == userId);
-
-            if (!hasAccess)
-                return Unauthorized();
-
-            var events = await _db.Events
-                .Where(e => e.CalendarId == calendarId)
-                .Select(e => new
-                {
-                    id = e.Id,
-                    title = e.Title,
-                    start = e.StartTime,
-                    end = e.EndTime,
-                    color = e.Category != null ? e.Category.ColorHex : "#6b46c1"
-                })
-                .ToListAsync();
-
-            return Ok(events);
+            var events = await _eventService.GetUserEventsAsync(userId);
+            return View(events);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Event dto)
+        public async Task<IActionResult> Create(Event ev)
         {
-            var user = await GetCurrentUser();
-            if (user == null) return Unauthorized();
-            
-            var calendar = await _db.Calendars
-                .Include(c => c.SharedWith)
-                .FirstOrDefaultAsync(c => c.Id == dto.CalendarId);
+            var userIdStr = HttpContext.Session.GetString("userid");
+            if (string.IsNullOrEmpty(userIdStr))
+                return RedirectToAction("Login", "Auth");
 
-            if (calendar == null)
-                return NotFound();
+            var userId = Guid.Parse(userIdStr);
 
-            bool canCreate =
-                user.IsAdmin ||
-                calendar.OwnerId == user.Id ||
-                calendar.SharedWith.Any(s => s.UserId == user.Id && s.Permission == "edit");
+            if (!ModelState.IsValid)
+                return View(ev);
 
-            if (!canCreate)
-                return Unauthorized();
-
-            var ev = new Event
+            try
             {
-                Id = Guid.NewGuid(),
-                CalendarId = dto.CalendarId,
-                Title = dto.Title,
-                Description = dto.Description,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime,
-                Location = dto.Location,
-                IsAllDay = dto.IsAllDay,
-                CategoryId = dto.CategoryId
-            };
-
-            _db.Events.Add(ev);
-            await _db.SaveChangesAsync();
-
-            // 🔔 Notification – Created
-            _db.Notifications.Add(new Notification
+                await _eventService.CreateAsync(ev, userId);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
             {
-                Id = Guid.NewGuid(),
-                UserId = user.Id,
-                Title = "Událost vytvořena",
-                Body = $"Událost „{ev.Title}“ byla vytvořena.",
-                IsRead = false,
-                CreatedAt = DateTime.UtcNow,
-                NotifyAt = DateTime.UtcNow
-            });
-            await _db.SaveChangesAsync();
-
-            return Ok(new { ev.Id });
+                ModelState.AddModelError("", ex.Message);
+                return View(ev);
+            }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, Event dto)
-        {
-            var user = await GetCurrentUser();
-            if (user == null) return Unauthorized();
-
-            var ev = await _db.Events
-                .Include(e => e.Calendar)
-                .ThenInclude(c => c.SharedWith)
-                .FirstOrDefaultAsync(e => e.Id == id);
-
-            if (ev == null)
-                return NotFound();
-
-            bool canEdit =
-                user.IsAdmin ||
-                ev.Calendar.OwnerId == user.Id ||
-                ev.Calendar.SharedWith.Any(s => s.UserId == user.Id && s.Permission == "edit");
-
-            if (!canEdit)
-                return Unauthorized();
-
-            ev.Title = dto.Title;
-            ev.Description = dto.Description;
-            ev.StartTime = dto.StartTime;
-            ev.EndTime = dto.EndTime;
-            ev.Location = dto.Location;
-            ev.IsAllDay = dto.IsAllDay;
-            ev.CategoryId = dto.CategoryId;
-
-            await _db.SaveChangesAsync();
-
-            _db.Notifications.Add(new Notification
-            {
-                Id = Guid.NewGuid(),
-                UserId = user.Id,
-                Title = "Událost upravena",
-                Body = $"Událost „{ev.Title}“ byla upravena.",
-                IsRead = false,
-                CreatedAt = DateTime.UtcNow,
-                NotifyAt = DateTime.UtcNow
-            });
-            await _db.SaveChangesAsync();
-
-            return Ok(new { message = "Updated." });
-        }
-
-        [HttpDelete("{id}")]
+        [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var user = await GetCurrentUser();
-            if (user == null) return Unauthorized();
+            var userIdStr = HttpContext.Session.GetString("userid");
+            if (string.IsNullOrEmpty(userIdStr))
+                return RedirectToAction("Login", "Auth");
 
-            var ev = await _db.Events
-                .Include(e => e.Calendar)
-                .ThenInclude(c => c.SharedWith)
-                .FirstOrDefaultAsync(e => e.Id == id);
+            var userId = Guid.Parse(userIdStr);
 
-            if (ev == null)
-                return NotFound();
-
-            bool canDelete =
-                user.IsAdmin ||
-                ev.Calendar.OwnerId == user.Id ||
-                ev.Calendar.SharedWith.Any(s => s.UserId == user.Id && s.Permission == "edit");
-
-            if (!canDelete)
-                return Unauthorized();
-
-            _db.Events.Remove(ev);
-            await _db.SaveChangesAsync();
-
-            // 🔔 Notification – Deleted
-            _db.Notifications.Add(new Notification
+            try
             {
-                Id = Guid.NewGuid(),
-                UserId = user.Id,
-                Title = "Událost smazána",
-                Body = $"Událost „{ev.Title}“ byla smazána.",
-                IsRead = false,
-                CreatedAt = DateTime.UtcNow,
-                NotifyAt = DateTime.UtcNow
-            });
-            await _db.SaveChangesAsync();
-
-            return Ok(new { message = "Deleted." });
+                await _eventService.DeleteAsync(id, userId);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
+}

@@ -1,15 +1,31 @@
-D:\Plocha\test webovky\Semestralka.Application\bin\Debug\net9.0\Semestralka.Application.deps.json
-D:\Plocha\test webovky\Semestralka.Application\bin\Debug\net9.0\Semestralka.Application.dll
-D:\Plocha\test webovky\Semestralka.Application\bin\Debug\net9.0\Semestralka.Application.pdb
-D:\Plocha\test webovky\Semestralka.Application\bin\Debug\net9.0\Semestralka.Domain.dll
-D:\Plocha\test webovky\Semestralka.Application\bin\Debug\net9.0\Semestralka.Domain.pdb
-D:\Plocha\test webovky\Semestralka.Application\obj\Debug\net9.0\Semestralka.Application.csproj.AssemblyReference.cache
-D:\Plocha\test webovky\Semestralka.Application\obj\Debug\net9.0\Semestralka.Application.GeneratedMSBuildEditorConfig.editorconfig
-D:\Plocha\test webovky\Semestralka.Application\obj\Debug\net9.0\Semestralka.Application.AssemblyInfoInputs.cache
-D:\Plocha\test webovky\Semestralka.Application\obj\Debug\net9.0\Semestralka.Application.AssemblyInfo.cs
-D:\Plocha\test webovky\Semestralka.Application\obj\Debug\net9.0\Semestralka.Application.csproj.CoreCompileInputs.cache
-D:\Plocha\test webovky\Semestralka.Application\obj\Debug\net9.0\Semestra.EA9F4ECA.Up2Date
-D:\Plocha\test webovky\Semestralka.Application\obj\Debug\net9.0\Semestralka.Application.dll
-D:\Plocha\test webovky\Semestralka.Application\obj\Debug\net9.0\refint\Semestralka.Application.dll
-D:\Plocha\test webovky\Semestralka.Application\obj\Debug\net9.0\Semestralka.Application.pdb
-D:\Plocha\test webovky\Semestralka.Application\obj\Debug\net9.0\ref\Semestralka.Application.dll
+D:/Plocha/test webovky/Semestralka.Application/bin/Debug/net9.0/Semestralka.Application.deps.json
+D:/Plocha/test webovky/Semestralka.Application/bin/Debug/net9.0/Semestralka.Application.dll
+D:/Plocha/test webovky/Semestralka.Application/bin/Debug/net9.0/Semestralka.Application.pdb
+D:/Plocha/test webovky/Semestralka.Application/bin/Debug/net9.0/Semestralka.Domain.dll
+D:/Plocha/test webovky/Semestralka.Application/bin/Debug/net9.0/Semestralka.Domain.pdb
+D:/Plocha/test webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.csproj.AssemblyReference.cache
+D:/Plocha/test webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:/Plocha/test webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.AssemblyInfoInputs.cache
+D:/Plocha/test webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.AssemblyInfo.cs
+D:/Plocha/test webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.csproj.CoreCompileInputs.cache
+D:/Plocha/test webovky/Semestralka.Application/obj/Debug/net9.0/Semestra.EA9F4ECA.Up2Date
+D:/Plocha/test webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.dll
+D:/Plocha/test webovky/Semestralka.Application/obj/Debug/net9.0/refint/Semestralka.Application.dll
+D:/Plocha/test webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.pdb
+D:/Plocha/test webovky/Semestralka.Application/obj/Debug/net9.0/ref/Semestralka.Application.dll
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/bin/Debug/net9.0/Semestralka.Application.deps.json
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/bin/Debug/net9.0/Semestralka.Application.dll
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/bin/Debug/net9.0/Semestralka.Application.pdb
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/bin/Debug/net9.0/Semestralka.Domain.dll
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/bin/Debug/net9.0/Semestralka.Domain.pdb
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.csproj.AssemblyReference.cache
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.GeneratedMSBuildEditorConfig.editorconfig
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.AssemblyInfoInputs.cache
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.AssemblyInfo.cs
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.csproj.CoreCompileInputs.cache
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.sourcelink.json
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/obj/Debug/net9.0/Semestra.EA9F4ECA.Up2Date
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.dll
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/obj/Debug/net9.0/refint/Semestralka.Application.dll
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/obj/Debug/net9.0/Semestralka.Application.pdb
+/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/obj/Debug/net9.0/ref/Semestralka.Application.dll

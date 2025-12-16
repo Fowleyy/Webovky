@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Semestralka.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c76d54e8a3fdf198b9bb13f457694ddade596fe4")]
 [assembly: System.Reflection.AssemblyProductAttribute("Semestralka.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Semestralka.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

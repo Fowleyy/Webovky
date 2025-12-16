@@ -755,6 +755,7 @@
       },
       "Semestralka.Infrastructure/1.0.0": {
         "dependencies": {
+          "BCrypt.Net-Next": "4.0.3",
           "Pomelo.EntityFrameworkCore.MySql": "9.0.0",
           "Semestralka.Application": "1.0.0",
           "Semestralka.Domain": "1.0.0"
