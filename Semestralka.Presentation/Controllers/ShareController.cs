@@ -1,116 +1,67 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Semestralka.Domain.Entities;
-using Semestralka.Infrastructure.Data.Persistence;
+using Semestralka.Infrastructure.Services;
 
-namespace Semestralka.Presentation.Controllers;
-
-    [Route("calendar/share")]
+namespace Semestralka.Presentation.Controllers
+{
     public class ShareController : Controller
     {
-        private readonly CalendarDbContext _db;
+        private readonly ShareService _shareService;
 
-        public ShareController(CalendarDbContext db)
+        public ShareController(ShareService shareService)
         {
-            _db = db;
+            _shareService = shareService;
         }
 
-        private Guid? UserId =>
-            HttpContext.Session.GetString("userid") is string id
-                ? Guid.Parse(id)
-                : null;
-
-        [HttpGet("{calendarId}")]
-        public async Task<IActionResult> Index(Guid calendarId)
+        [HttpPost]
+        public async Task<IActionResult> Create(Guid userId, string permission)
         {
-            if (UserId == null) return Redirect("/login");
+            var ownerIdStr = HttpContext.Session.GetString("userid");
+            if (string.IsNullOrEmpty(ownerIdStr))
+                return RedirectToAction("Login", "Auth");
 
-            var cal = await _db.Calendars
-                .Include(c => c.SharedWith)
-                    .ThenInclude(s => s.User)
-                .FirstOrDefaultAsync(c =>
-                    c.Id == calendarId &&
-                    c.OwnerId == UserId);
+            var ownerId = Guid.Parse(ownerIdStr);
 
-            if (cal == null)
-                return Unauthorized();
-
-            return View(cal);
+            try
+            {
+                await _shareService.ShareCalendarAsync(ownerId, userId, permission);
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        [HttpPost("{calendarId}")]
-        public async Task<IActionResult> Share(Guid calendarId, string email, string permission)
+        public async Task<IActionResult> Index()
         {
-            if (UserId == null) return Redirect("/login");
+            var userIdStr = HttpContext.Session.GetString("userid");
+            if (string.IsNullOrEmpty(userIdStr))
+                return RedirectToAction("Login", "Auth");
 
-            var calendar = await _db.Calendars
-                .FirstOrDefaultAsync(c =>
-                    c.Id == calendarId &&
-                    c.OwnerId == UserId);
+            var userId = Guid.Parse(userIdStr);
 
-            if (calendar == null)
-                return Unauthorized();
-
-            var user = await _db.Users
-                .FirstOrDefaultAsync(u => u.Email == email.ToLower());
-
-            if (user == null)
-            {
-                TempData["Error"] = "Uživatel s tímto emailem neexistuje.";
-                return Redirect($"/calendar/share/{calendarId}");
-            }
-
-            if (user.Id == UserId)
-            {
-                TempData["Error"] = "Nemůžeš sdílet kalendář sám sobě.";
-                return Redirect($"/calendar/share/{calendarId}");
-            }
-
-            var existing = await _db.CalendarShares
-                .FirstOrDefaultAsync(s =>
-                    s.CalendarId == calendarId &&
-                    s.UserId == user.Id);
-
-            if (existing == null)
-            {
-                var record = new CalendarShare
-                {
-                    Id = Guid.NewGuid(),
-                    CalendarId = calendarId,
-                    UserId = user.Id,
-                    Permission = permission
-                };
-
-                _db.CalendarShares.Add(record);
-            }
-            else
-            {
-                existing.Permission = permission;
-            }
-
-            await _db.SaveChangesAsync();
-
-            TempData["Success"] = "Kalendář byl úspěšně sdílen.";
-            return Redirect($"/calendar/share/{calendarId}");
+            var shared = await _shareService.GetSharedCalendarsAsync(userId);
+            return View(shared);
         }
 
-        [HttpGet("remove/{id}")]
+        [HttpPost]
         public async Task<IActionResult> Remove(Guid id)
         {
-            if (UserId == null) return Redirect("/login");
+            var ownerIdStr = HttpContext.Session.GetString("userid");
+            if (string.IsNullOrEmpty(ownerIdStr))
+                return RedirectToAction("Login", "Auth");
 
-            var entry = await _db.CalendarShares
-                .Include(s => s.Calendar)
-                .FirstOrDefaultAsync(s => s.Id == id);
+            var ownerId = Guid.Parse(ownerIdStr);
 
-            if (entry == null || entry.Calendar == null || entry.Calendar.OwnerId != UserId)
-                return Redirect("/calendar");
-
-            var calendarId = entry.CalendarId;
-            _db.CalendarShares.Remove(entry);
-            await _db.SaveChangesAsync();
-
-            return Redirect($"/calendar/share/{calendarId}");
-
+            try
+            {
+                await _shareService.RemoveShareAsync(id, ownerId);
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
+}

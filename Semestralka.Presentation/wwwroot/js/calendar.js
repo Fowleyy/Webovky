@@ -1,23 +1,48 @@
-document.addEventListener('DOMContentLoaded', async function () {
+document.addEventListener("DOMContentLoaded", function () {
 
     const CALENDAR_ID = window.CALENDAR_ID;
     const CAN_EDIT = window.CAN_EDIT;
 
-    var calendarEl = document.getElementById('calendar');
+    if (!CALENDAR_ID) {
+        console.error("CALENDAR_ID is missing");
+        return;
+    }
 
-    // ======================================================
-    // LOAD EVENTS
-    // ======================================================
+    const calendarEl = document.getElementById("calendar");
+    if (!calendarEl) {
+        console.error("Calendar element not found");
+        return;
+    }
+
     async function loadEvents() {
         const res = await fetch(`/api/events?calendarId=${CALENDAR_ID}`, {
-            credentials: "same-origin"
+            credentials: "include",
+            headers: {
+                "Accept": "application/json"
+            }
         });
 
         if (!res.ok) {
             console.error("Events load failed:", res.status);
             return [];
         }
-        return await res.json();
+
+        const data = await res.json();
+
+        // map backend Event → FullCalendar event
+        return data.map(e => ({
+            id: e.id,
+            title: e.title,
+            start: e.startTime,
+            end: e.endTime,
+            allDay: e.isAllDay === true,
+            backgroundColor: e.color ?? "#6b46c1",
+            borderColor: e.color ?? "#6b46c1",
+            extendedProps: {
+                description: e.description,
+                location: e.location
+            }
+        }));
     }
 
     function createElement(html) {
@@ -26,10 +51,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         return template.content.firstChild;
     }
 
-    // ======================================================
-    // UPDATE MONTH TITLE
-    // ======================================================
     function updateTitle() {
+        const titleEl = document.getElementById("cal-title");
+        if (!titleEl || !calendar) return;
+
         const date = calendar.getDate();
 
         const formatter = new Intl.DateTimeFormat("cs-CZ", {
@@ -37,29 +62,32 @@ document.addEventListener('DOMContentLoaded', async function () {
             year: "numeric",
         });
 
-        document.getElementById("cal-title").textContent =
-            formatter.format(date);
+        titleEl.textContent = formatter.format(date);
     }
 
-    // ======================================================
-    // FULLCALENDAR CONFIG
-    // ======================================================
-    var config = {
-        headerToolbar: false,
-        initialView: "dayGridMonth",
 
-        events: async (info, success) => {
-            success(await loadEvents());
+
+    const config = {
+        initialView: "dayGridMonth",
+        headerToolbar: false,
+
+        events: async (info, successCallback, failureCallback) => {
+            try {
+                const events = await loadEvents();
+                successCallback(events);
+            } catch (err) {
+                console.error("Event fetch error:", err);
+                failureCallback(err);
+            }
         },
 
         eventContent: function (arg) {
-
-            let color =
-                arg.event.extendedProps.color ||
+            const color =
                 arg.event.backgroundColor ||
+                arg.event.extendedProps?.color ||
                 "#6b46c1";
 
-            let html = `
+            const html = `
                 <div style="display:flex;align-items:center;gap:6px;">
                     <span style="
                         width:10px;
@@ -76,74 +104,69 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     };
 
-    // EDIT PERMISSIONS
     if (CAN_EDIT) {
         config.dateClick = function (info) {
-            window.location.href = `/event/create/${CALENDAR_ID}?start=` + info.dateStr;
+            window.location.href =
+                `/event/create/${CALENDAR_ID}?start=${info.dateStr}`;
         };
 
         config.eventClick = function (info) {
-            window.location.href = `/event/edit/${info.event.id}`;
+            window.location.href =
+                `/event/edit/${info.event.id}`;
         };
     }
 
-    var calendar = new FullCalendar.Calendar(calendarEl, config);
+    const calendar = new FullCalendar.Calendar(calendarEl, config);
     calendar.render();
     calendar.refetchEvents();
 
-    updateTitle(); // show current month
+    updateTitle(calendar);
 
-    // ======================================================
-    // ACTIVE BUTTON HIGHLIGHT
-    // ======================================================
     function setActive(buttonId) {
         const buttons = ["cal-day", "cal-week", "cal-month"];
 
         buttons.forEach(id => {
-            document.getElementById(id).classList.remove("btn-purple");
-            document.getElementById(id).classList.add("btn-outline-purple");
+            const btn = document.getElementById(id);
+            if (!btn) return;
+
+            btn.classList.remove("btn-purple");
+            btn.classList.add("btn-outline-purple");
         });
 
-        document.getElementById(buttonId).classList.remove("btn-outline-purple");
-        document.getElementById(buttonId).classList.add("btn-purple");
+        const active = document.getElementById(buttonId);
+        if (active) {
+            active.classList.remove("btn-outline-purple");
+            active.classList.add("btn-purple");
+        }
     }
 
-    // ======================================================
-    // VIEW SWITCHING
-    // ======================================================
-
-    document.getElementById("cal-month").onclick = () => {
+    document.getElementById("cal-month")?.addEventListener("click", () => {
         calendar.changeView("dayGridMonth");
         setActive("cal-month");
-        updateTitle();
-    };
+        updateTitle(calendar);
+    });
 
-    document.getElementById("cal-week").onclick = () => {
+    document.getElementById("cal-week")?.addEventListener("click", () => {
         calendar.changeView("timeGridWeek");
         setActive("cal-week");
-        updateTitle();
-    };
+        updateTitle(calendar);
+    });
 
-    document.getElementById("cal-day").onclick = () => {
+    document.getElementById("cal-day")?.addEventListener("click", () => {
         calendar.changeView("timeGridDay");
         setActive("cal-day");
-        updateTitle();
-    };
+        updateTitle(calendar);
+    });
 
-    // ======================================================
-    // MONTH SWITCHING
-    // ======================================================
-
-    document.getElementById("cal-prev").onclick = () => {
+    document.getElementById("cal-prev")?.addEventListener("click", () => {
         calendar.prev();
-        updateTitle();
-    };
+        updateTitle(calendar);
+    });
 
-    document.getElementById("cal-next").onclick = () => {
+    document.getElementById("cal-next")?.addEventListener("click", () => {
         calendar.next();
-        updateTitle();
-    };
+        updateTitle(calendar);
+    });
 
-    // Default active button
     setActive("cal-month");
 });

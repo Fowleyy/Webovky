@@ -1,18 +1,18 @@
 {
   "version": 2,
-  "dgSpecHash": "pxeRsP6Cs+c=",
+  "dgSpecHash": "ILih90ZifG8=",
   "success": true,
-  "projectFilePath": "/home/daniel/Documents/GitHub/Webovky/Semestralka.Application/Semestralka.Application.csproj",
+  "projectFilePath": "C:\\Users\\Daniel\\Documents\\GitHub\\Webovky\\Semestralka.Application\\Semestralka.Application.csproj",
   "expectedPackageFiles": [
-    "/home/daniel/.nuget/packages/microsoft.extensions.configuration.abstractions/10.0.1/microsoft.extensions.configuration.abstractions.10.0.1.nupkg.sha512",
-    "/home/daniel/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/10.0.1/microsoft.extensions.dependencyinjection.abstractions.10.0.1.nupkg.sha512",
-    "/home/daniel/.nuget/packages/microsoft.extensions.diagnostics.abstractions/10.0.1/microsoft.extensions.diagnostics.abstractions.10.0.1.nupkg.sha512",
-    "/home/daniel/.nuget/packages/microsoft.extensions.fileproviders.abstractions/10.0.1/microsoft.extensions.fileproviders.abstractions.10.0.1.nupkg.sha512",
-    "/home/daniel/.nuget/packages/microsoft.extensions.hosting.abstractions/10.0.1/microsoft.extensions.hosting.abstractions.10.0.1.nupkg.sha512",
-    "/home/daniel/.nuget/packages/microsoft.extensions.logging.abstractions/10.0.1/microsoft.extensions.logging.abstractions.10.0.1.nupkg.sha512",
-    "/home/daniel/.nuget/packages/microsoft.extensions.options/10.0.1/microsoft.extensions.options.10.0.1.nupkg.sha512",
-    "/home/daniel/.nuget/packages/microsoft.extensions.primitives/10.0.1/microsoft.extensions.primitives.10.0.1.nupkg.sha512",
-    "/home/daniel/.nuget/packages/system.diagnostics.diagnosticsource/10.0.1/system.diagnostics.diagnosticsource.10.0.1.nupkg.sha512"
+    "C:\\Users\\Daniel\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\10.0.1\\microsoft.extensions.configuration.abstractions.10.0.1.nupkg.sha512",
+    "C:\\Users\\Daniel\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.1\\microsoft.extensions.dependencyinjection.abstractions.10.0.1.nupkg.sha512",
+    "C:\\Users\\Daniel\\.nuget\\packages\\microsoft.extensions.diagnostics.abstractions\\10.0.1\\microsoft.extensions.diagnostics.abstractions.10.0.1.nupkg.sha512",
+    "C:\\Users\\Daniel\\.nuget\\packages\\microsoft.extensions.fileproviders.abstractions\\10.0.1\\microsoft.extensions.fileproviders.abstractions.10.0.1.nupkg.sha512",
+    "C:\\Users\\Daniel\\.nuget\\packages\\microsoft.extensions.hosting.abstractions\\10.0.1\\microsoft.extensions.hosting.abstractions.10.0.1.nupkg.sha512",
+    "C:\\Users\\Daniel\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\10.0.1\\microsoft.extensions.logging.abstractions.10.0.1.nupkg.sha512",
+    "C:\\Users\\Daniel\\.nuget\\packages\\microsoft.extensions.options\\10.0.1\\microsoft.extensions.options.10.0.1.nupkg.sha512",
+    "C:\\Users\\Daniel\\.nuget\\packages\\microsoft.extensions.primitives\\10.0.1\\microsoft.extensions.primitives.10.0.1.nupkg.sha512",
+    "C:\\Users\\Daniel\\.nuget\\packages\\system.diagnostics.diagnosticsource\\10.0.1\\system.diagnostics.diagnosticsource.10.0.1.nupkg.sha512"
   ],
   "logs": []
 }

@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Semestralka.Domain.Entities;
 using Semestralka.Infrastructure.Data.Persistence;
 
-namespace Semestralka.Presentation.Controllers;
-
+namespace Semestralka.Presentation.Controllers
+{
     [ApiController]
     [Route("api/notifications")]
     public class NotificationsController : ControllerBase
@@ -15,80 +14,51 @@ namespace Semestralka.Presentation.Controllers;
         {
             _db = db;
         }
-        private Guid? UserId =>
-            HttpContext.Session.GetString("userid") is string id
-                ? Guid.Parse(id)
-                : (Guid?)null;
 
-        [HttpGet]
-        public async Task<IActionResult> GetMy()
+        // GET /api/notifications/list
+        [HttpGet("list")]
+        public async Task<IActionResult> List()
         {
-            if (UserId == null)
+            var userIdStr = HttpContext.Session.GetString("userid");
+            if (string.IsNullOrEmpty(userIdStr))
                 return Unauthorized();
 
-            var items = await _db.Notifications
-                .Where(n => n.UserId == UserId.Value)
+            var userId = Guid.Parse(userIdStr);
+
+            var notifications = await _db.Notifications
+                .Where(n => n.UserId == userId)
                 .OrderByDescending(n => n.CreatedAt)
                 .ToListAsync();
 
-            return Ok(items);
+            return Ok(notifications);
         }
 
-        [HttpPost("read/{id}")]
-        public async Task<IActionResult> MarkRead(Guid id)
+        // POST /api/notifications/read?id=GUID
+        [HttpPost("read")]
+        public async Task<IActionResult> Read(Guid id)
         {
-            if (UserId == null)
-                return Unauthorized();
-
-            var notif = await _db.Notifications
-                .FirstOrDefaultAsync(n => n.Id == id && n.UserId == UserId.Value);
-
-            if (notif == null)
+            var n = await _db.Notifications.FindAsync(id);
+            if (n == null)
                 return NotFound();
 
-            notif.IsRead = true;
+            n.IsRead = true;
             await _db.SaveChangesAsync();
 
             return Ok();
         }
 
+        // DELETE /api/notifications/delete/GUID
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            if (UserId == null)
-                return Unauthorized();
+            var n = await _db.Notifications.FindAsync(id);
+            if (n == null)
+                return NotFound();
 
-            var notif = await _db.Notifications
-                .FirstOrDefaultAsync(n => n.Id == id && n.UserId == UserId.Value);
-
-            if (notif != null)
-            {
-                _db.Notifications.Remove(notif);
-                await _db.SaveChangesAsync();
-            }
+            _db.Notifications.Remove(n);
+            await _db.SaveChangesAsync();
 
             return Ok();
         }
-
-        [HttpPost("test")]
-        public async Task<IActionResult> CreateTest()
-        {
-            if (UserId == null)
-                return Unauthorized();
-
-            var notif = new Notification
-            {
-                Id = Guid.NewGuid(),
-                UserId = UserId.Value,
-                Title = "Test notifikace",
-                Body = "Toto je testovací notifikace.",
-                CreatedAt = DateTime.UtcNow,
-                NotifyAt = DateTime.UtcNow
-            };
-
-            _db.Notifications.Add(notif);
-            await _db.SaveChangesAsync();
-
-            return Ok(notif);
-        }
     }
+}

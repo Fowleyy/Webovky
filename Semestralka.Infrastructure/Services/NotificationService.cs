@@ -1,80 +1,72 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Semestralka.Domain.Entities;
 using Semestralka.Infrastructure.Data.Persistence;
 
-namespace Semestralka.Infrastructure.Services;
-
-public class NotificationService : BackgroundService
+namespace Semestralka.Infrastructure.Services
 {
-    private readonly IServiceProvider _provider;
-    private readonly ILogger<NotificationService> _logger;
-
-    public NotificationService(IServiceProvider provider, ILogger<NotificationService> logger)
+    public class NotificationService
     {
-        _provider = provider;
-        _logger = logger;
-    }
+        private readonly CalendarDbContext _db;
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        _logger.LogInformation("NotificationService started.");
-
-        while (!stoppingToken.IsCancellationRequested)
+        public NotificationService(CalendarDbContext db)
         {
-            try
-            {
-                await ProcessNotifications(stoppingToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in NotificationService");
-            }
-
-            await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
+            _db = db;
         }
-    }
 
-    private async Task ProcessNotifications(CancellationToken token)
-    {
-        using var scope = _provider.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<CalendarDbContext>();
-
-        var now = DateTime.UtcNow;
-        var soon = now.AddMinutes(10);
-
-        var events = await db.Events
-            .Include(e => e.Calendar)
-            .Where(e =>
-                e.StartTime.UtcDateTime >= now &&
-                e.StartTime.UtcDateTime <= soon)
-            .ToListAsync(token);
-
-        foreach (var ev in events)
+        public async Task<List<Notification>> GetUserNotificationsAsync(Guid userId)
         {
-            bool exists = await db.Notifications.AnyAsync(n =>
-                n.EventId == ev.Id &&
-                n.UserId == ev.Calendar.OwnerId,
-                token);
+            return await _db.Notifications
+                .Where(n => n.UserId == userId)
+                .OrderByDescending(n => n.CreatedAt)
+                .ToListAsync();
+        }
 
-            if (exists) continue;
-
+        public async Task CreateAsync(
+            Guid userId,
+            string title,
+            string body,
+            Guid? eventId,
+            DateTime notifyAt)
+        {
             var notification = new Notification
             {
                 Id = Guid.NewGuid(),
-                UserId = ev.Calendar.OwnerId,
-                EventId = ev.Id,
-                Title = $"Blíží se událost: {ev.Title}",
-                Body = $"Událost začne v {ev.StartTime.LocalDateTime:t}.",
-                NotifyAt = ev.StartTime.UtcDateTime,
+                UserId = userId,
+                Title = title,
+                Body = body,
+                EventId = eventId,
+                NotifyAt = notifyAt,
+                IsRead = false,
                 CreatedAt = DateTime.UtcNow
             };
 
-            db.Notifications.Add(notification);
+            _db.Notifications.Add(notification);
+            await _db.SaveChangesAsync();
         }
 
-        await db.SaveChangesAsync(token);
+        public async Task MarkAsReadAsync(Guid notificationId, Guid userId)
+        {
+            var notification = await _db.Notifications
+                .FirstOrDefaultAsync(n => n.Id == notificationId && n.UserId == userId);
+
+            if (notification == null)
+                throw new Exception("Notifikace nenalezena");
+
+            notification.IsRead = true;
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(Guid notificationId, Guid userId)
+        {
+            var notification = await _db.Notifications
+                .FirstOrDefaultAsync(n => n.Id == notificationId && n.UserId == userId);
+
+            if (notification == null)
+                throw new Exception("Notifikace nenalezena");
+
+            _db.Notifications.Remove(notification);
+            await _db.SaveChangesAsync();
+        }
+
     }
 }

@@ -2,7 +2,7 @@
 
 <h2 class="mb-4">Kalendáře sdílené s tebou</h2>
 
-@if (Model.Count() == 0)
+@if (Model == null || !Model.Any())
 {
     <p class="text-muted">Momentálně s tebou není sdílen žádný kalendář.</p>
 }
@@ -13,10 +13,13 @@ else
         {
             if (share.Calendar != null && share.Calendar.Owner != null)
             {
-                <a href="/calendar/@share.CalendarId" class="list-group-item list-group-item-action">
+                <a href="/calendar/@share.Calendar.Id"
+                   class="list-group-item list-group-item-action">
+
                     <strong>@share.Calendar.Owner.FullName</strong><br />
                     <small>@share.Calendar.Owner.Email</small><br />
                     <span class="text-muted">Práva: @share.Permission</span>
+
                 </a>
             }
         }

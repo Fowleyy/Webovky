@@ -5,10 +5,8 @@ using Semestralka.Domain.Entities;
 using Semestralka.Infrastructure.Data.Persistence;
 using Semestralka.Presentation.Models;
 
-
-
-namespace Semestralka.Presentation.Controllers;
-
+namespace Semestralka.Presentation.Controllers
+{
     public class HomeController : Controller
     {
         private readonly CalendarDbContext _db;
@@ -20,13 +18,12 @@ namespace Semestralka.Presentation.Controllers;
             _logger = logger;
         }
 
+        // =========================
+        // HLAVNÍ KALENDÁŘ (OWNER)
+        // =========================
         public async Task<IActionResult> Index()
         {
-            var http = HttpContext;
-            if (http == null)
-                return Redirect("/login");
-
-            var uid = http.Session.GetString("userid");
+            var uid = HttpContext.Session.GetString("userid");
             if (uid == null)
                 return Redirect("/login");
 
@@ -50,62 +47,72 @@ namespace Semestralka.Presentation.Controllers;
                 await _db.SaveChangesAsync();
             }
 
-            http.Session.SetString("currentCalendarId", calendar.Id.ToString());
+            HttpContext.Session.SetString(
+                "currentCalendarId",
+                calendar.Id.ToString()
+            );
+
             return View("FullCalendarHome", calendar);
         }
 
+        // =========================
+        // SDÍLENÉ KALENDÁŘE
+        // =========================
         [HttpGet("/shared-calendars")]
         public async Task<IActionResult> SharedCalendars()
         {
-            var http = HttpContext;
-            if (http == null)
-                return Redirect("/login");
+            var userIdStr = HttpContext.Session.GetString("userid");
+            if (string.IsNullOrEmpty(userIdStr))
+                return RedirectToAction("Index");
 
-            var uid = http.Session.GetString("userid");
-            if (uid == null)
-                return Redirect("/login");
-
-            var userId = Guid.Parse(uid);
+            var userId = Guid.Parse(userIdStr);
 
             var shared = await _db.CalendarShares
-                .Include(s => s.Calendar)
+                .Include(cs => cs.Calendar)
                     .ThenInclude(c => c.Owner)
-                .Where(s => s.UserId == userId)
+                .Where(cs => cs.UserId == userId)
                 .ToListAsync();
 
-            return View("SharedCalendars", shared);
+            return View(shared);
         }
 
+        // =========================
+        // ZOBRAZENÍ SDÍLENÉHO KALENDÁŘE
+        // =========================
         [HttpGet("/calendar/{id}")]
         public async Task<IActionResult> ViewShared(Guid id)
         {
-            var http = HttpContext;
-            if (http == null)
-                return Redirect("/login");
-
-            var uid = http.Session.GetString("userid");
+            var uid = HttpContext.Session.GetString("userid");
             if (uid == null)
                 return Redirect("/login");
 
             var userId = Guid.Parse(uid);
 
-            var result = await _db.Calendars
+            var calendar = await _db.Calendars
                 .Include(c => c.Owner)
                 .Include(c => c.SharedWith)
                     .ThenInclude(s => s.User)
                 .Include(c => c.Events)
                 .FirstOrDefaultAsync(c =>
                     c.Id == id &&
-                    (c.OwnerId == userId || c.SharedWith.Any(s => s.UserId == userId))
+                    (c.OwnerId == userId ||
+                     c.SharedWith.Any(s => s.UserId == userId))
                 );
 
-            if (result == null)
+            if (calendar == null)
                 return Unauthorized();
 
-            http.Session.SetString("currentCalendarId", result.Id.ToString());
-            return View("FullCalendarHome", result);
+            HttpContext.Session.SetString(
+                "currentCalendarId",
+                calendar.Id.ToString()
+            );
+
+            return View("FullCalendarHome", calendar);
         }
 
+        // =========================
+        // OSTATNÍ
+        // =========================
         public IActionResult Privacy()
         {
             return View();
@@ -114,15 +121,18 @@ namespace Semestralka.Presentation.Controllers;
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id });
-
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id
+            });
         }
 
         public IActionResult Landing()
         {
-            if (HttpContext?.Session.GetString("userid") != null)
+            if (HttpContext.Session.GetString("userid") != null)
                 return RedirectToAction("Index");
 
             return View();
         }
     }
+}

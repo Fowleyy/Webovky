@@ -1,48 +1,65 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Semestralka.Application.DTOs.Calendar;
-using Semestralka.Domain.Entities;
-using Semestralka.Infrastructure.Data.Persistence;
+using Semestralka.Infrastructure.Services;
 
-namespace Semestralka.Presentation.Controllers;
-
-public class CalendarController : Controller
+namespace Semestralka.Presentation.Controllers
 {
-    private readonly CalendarDbContext _db;
-
-    public CalendarController(CalendarDbContext db)
+    public class CalendarController : Controller
     {
-        _db = db;
-    }
+        private readonly CalendarService _calendarService;
 
-    [HttpPost]
-    public async Task<IActionResult> Create(CreateCalendarDto dto)
-    {
-        var calendar = new Calendar
+        public CalendarController(CalendarService calendarService)
         {
-            Id = Guid.NewGuid(),
-            OwnerId = dto.OwnerId,
-            Color = dto.Color,
-            Visibility = dto.Visibility
-        };
+            _calendarService = calendarService;
+        }
 
-        _db.Calendars.Add(calendar);
-        await _db.SaveChangesAsync();
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateCalendarDto dto)
+        {
+            var userIdStr = HttpContext.Session.GetString("userid");
+            if (string.IsNullOrEmpty(userIdStr))
+                return RedirectToAction("Login", "Auth");
 
-        return RedirectToAction("Index", "Home");
-    }
+            var userId = Guid.Parse(userIdStr);
 
-    [HttpPost]
-    public async Task<IActionResult> Update(Guid id, UpdateCalendarDto dto)
-    {
-        var calendar = await _db.Calendars.FirstOrDefaultAsync(c => c.Id == id);
-        if (calendar == null)
-            return NotFound();
+            try
+            {
+                await _calendarService.CreateIfNotExistsAsync(userId);
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-        calendar.Color = dto.Color;
-        calendar.Visibility = dto.Visibility;
+        [HttpPost]
+        public async Task<IActionResult> Update(UpdateCalendarDto dto)
+        {
+            var userIdStr = HttpContext.Session.GetString("userid");
+            if (string.IsNullOrEmpty(userIdStr))
+                return RedirectToAction("Login", "Auth");
 
-        await _db.SaveChangesAsync();
-        return RedirectToAction("Index", "Home");
+            var userId = Guid.Parse(userIdStr);
+
+            try
+            {
+                if (!string.IsNullOrEmpty(dto.Color))
+                {
+                    await _calendarService.UpdateColorAsync(userId, dto.Color);
+                }
+
+                if (!string.IsNullOrEmpty(dto.Visibility))
+                {
+                    await _calendarService.UpdateVisibilityAsync(userId, dto.Visibility);
+                }
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

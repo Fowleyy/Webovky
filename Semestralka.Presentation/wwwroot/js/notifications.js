@@ -23,9 +23,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function loadNotifications() {
         try {
-            const res = await fetch("/api/notifications");
+            const res = await fetch("/api/notifications/list", {
+                credentials: "include",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
             if (!res.ok) {
-                notifList.innerHTML = "<div class='p-2 text-danger'>Chyba načítání</div>";
+                notifList.innerHTML =
+                    "<div class='p-2 text-danger'>Chyba načítání</div>";
+                return;
+            }
+
+            const contentType = res.headers.get("content-type");
+
+            if (!contentType || !contentType.includes("application/json")) {
+                const text = await res.text();
+                console.error("API nevrátilo JSON:", text);
+                notifList.innerHTML =
+                    "<div class='p-2 text-danger'>Server nevrátil JSON</div>";
                 return;
             }
 
@@ -77,36 +94,24 @@ document.addEventListener("DOMContentLoaded", () => {
                     <strong>${n.title}</strong><br>
                     <small>${n.body}</small>
                 </div>
-
-                <button class="notif-delete-btn" data-id="${n.id}">×</button>
             `;
 
             div.addEventListener("click", () => markRead(n.id));
-
             notifList.appendChild(div);
         });
-
-        // delete buttons
-        document.querySelectorAll(".notif-delete-btn").forEach(btn => {
-            btn.addEventListener("click", async (e) => {
-                e.stopPropagation();
-                const id = btn.getAttribute("data-id");
-
-                await fetch(`/api/notifications/delete/${id}`, {
-                    method: "DELETE"
-                });
-
-                loadNotifications();
-            });
-        });
     }
-
 
     async function markRead(id) {
-        await fetch(`/api/notifications/read/${id}`, { method: "POST" });
+        await fetch(`/api/notifications/read?id=${id}`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Accept": "application/json"
+            }
+        });
+
         loadNotifications();
     }
-
 
     loadNotifications();
     setInterval(loadNotifications, 15000);

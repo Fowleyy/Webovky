@@ -28,6 +28,9 @@
     bool canEdit = isOwner || permission == "edit";
 }
 
+<!-- 🔴 FULLCALENDAR CSS – MUSÍ BÝT -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/main.min.css" rel="stylesheet" />
+
 <div class="calendar-topbar d-flex align-items-center justify-content-between mb-3">
 
     <div class="d-flex align-items-center gap-3">
@@ -45,19 +48,22 @@
 
         @if (isOwner)
         {
-            <a class="btn btn-outline-purple" href="/calendar/share/@Model.Id">🤝 Sdílet</a>
+            <a class="btn btn-outline-purple" href="/calendar/share/@Model.Id">
+                🤝 Sdílet
+            </a>
         }
     </div>
-
 </div>
 
 <div id="calendar" class="mb-4"></div>
 
+<!-- FULLCALENDAR JS -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
 
+<!-- 🔥 GLOBÁLNÍ PROMĚNNÉ PRO calendar.js -->
 <script>
     window.CALENDAR_ID = "@Model.Id";
-    window.CAN_EDIT = @(canEdit ? "true" : "false");
+    window.CAN_EDIT = @canEdit.ToString().ToLower();
 </script>
 
 <script src="/js/calendar.js"></script>

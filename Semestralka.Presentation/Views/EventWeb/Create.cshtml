@@ -1,3 +1,5 @@
+@model Semestralka.Domain.Entities.Event
+
 @{
     ViewData["Title"] = "Vytvořit událost";
     Layout = "_Layout";
@@ -12,9 +14,10 @@
         <div class="error mb-3">@ViewData["Error"]</div>
     }
 
-    <form method="post">
+    <form method="post" action="/event/create">
 
-        <input type="hidden" name="CalendarId" value="@(ViewBag.CalendarId)" />
+        <!-- 🔴 už žádný ViewBag -->
+        <input type="hidden" name="CalendarId" value="@Model.CalendarId" />
 
         <div class="row">
             <div class="col">
@@ -33,12 +36,18 @@
         <div class="inline">
             <div class="inline-item">
                 <label>Začátek</label>
-                <input name="StartTime" type="datetime-local" required />
+                <input name="StartTime"
+                       type="datetime-local"
+                       value="@Model.StartTime.ToString("yyyy-MM-ddTHH:mm")"
+                       required />
             </div>
 
             <div class="inline-item">
                 <label>Konec</label>
-                <input name="EndTime" type="datetime-local" required />
+                <input name="EndTime"
+                       type="datetime-local"
+                       value="@Model.EndTime.ToString("yyyy-MM-ddTHH:mm")"
+                       required />
             </div>
         </div>
 
@@ -54,14 +63,12 @@
                 <label>Kategorie</label>
                 <select name="CategoryId" class="form-select">
                     <option value="">-- vyber kategorii --</option>
-                    @foreach (var c in ViewBag.Categories)
+
+                    @foreach (var c in (IEnumerable<Semestralka.Domain.Entities.EventCategory>)ViewBag.Categories)
                     {
-                        <option value="@c.Id" style="color:@c.ColorHex">
-                            @c.Name
-                        </option>
+                        <option value="@c.Id">@c.Name</option>
                     }
                 </select>
-
             </div>
         </div>
 
@@ -76,5 +83,4 @@
         </div>
 
     </form>
-
 </div>

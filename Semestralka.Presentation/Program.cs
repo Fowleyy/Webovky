@@ -45,7 +45,10 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<EventService>();
-
+builder.Services.AddScoped<CalendarService>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<ShareService>();
+builder.Services.AddScoped<SettingsService>();
 
 
 var app = builder.Build();
