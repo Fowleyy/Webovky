@@ -8,14 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 const string JwtKey = "THIS_IS_THE_FINAL_TEST_KEY_1234567890_ABCDEF_0987654321";
 
-// =======================
-// MVC
-// =======================
 builder.Services.AddControllersWithViews();
 
-// =======================
-// DATABASE (Infrastructure)
-// =======================
 builder.Services.AddDbContext<CalendarDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -25,9 +19,6 @@ builder.Services.AddDbContext<CalendarDbContext>(options =>
     )
 );
 
-// =======================
-// JWT AUTH
-// =======================
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -47,33 +38,21 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-// =======================
-// SESSION
-// =======================
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 
-// =======================
-// SWAGGER
-// =======================
 builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
 
-// =======================
-// MIDDLEWARE PIPELINE
-// =======================
 app.UseStaticFiles();
 app.UseRouting();
 
-app.UseSession();      // MUSÍ být před Auth
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// =======================
-// ROUTES
-// =======================
 app.MapControllers();
 
 app.MapControllerRoute(
@@ -81,3 +60,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Landing}/{id?}");
 
 app.Run();
+
+
+// DODĚLAT SLUŽBY A SERVEROVÉ VALIDACE
