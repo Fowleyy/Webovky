@@ -49,9 +49,6 @@ public class AdminController : Controller
         return View(await users.ToListAsync());
     }
 
-    // =========================
-    // GET /admin/calendar/{id}
-    // =========================
     public async Task<IActionResult> Calendar(Guid id)
     {
         var check = RequireAdmin();
@@ -69,10 +66,6 @@ public class AdminController : Controller
         return View("AdminCalendar", calendar);
     }
 
-
-    // =========================
-    // POST /admin/delete-user/{id}
-    // =========================
     [HttpPost]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
@@ -92,9 +85,6 @@ public class AdminController : Controller
         return Redirect("/admin");
     }
 
-    // =========================
-    // POST /admin/toggle-admin/{id}
-    // =========================
     [HttpPost]
     public async Task<IActionResult> ToggleAdmin(Guid id)
     {

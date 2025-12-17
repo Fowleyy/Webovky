@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Semestralka.Domain.Entities;
+using Semestralka.Domain.Exceptions;
+using Semestralka.Domain.Validations;
 using Semestralka.Application.DTOs.Event;
 using Semestralka.Infrastructure.Data.Persistence;
 
@@ -14,7 +16,6 @@ public class EventService
         _db = db;
     }
 
-    // === NAČTENÍ UDÁLOSTÍ (READ) ===
     public async Task<List<CreateEventDto>> GetEventsAsync(
         Guid calendarId,
         Guid userId,
@@ -52,35 +53,36 @@ public class EventService
             .ToListAsync();
     }
 
-    // === VYTVOŘENÍ UDÁLOSTI ===
     public async Task CreateAsync(
         CreateEventDto dto,
         Guid userId,
         bool isAdmin
     )
     {
-        // === ZÁKLADNÍ VALIDACE ===
-        if (string.IsNullOrWhiteSpace(dto.Title))
-            throw new ArgumentException("Název události je povinný.");
-
-        if (dto.End <= dto.Start)
-            throw new ArgumentException("Konec události musí být po začátku.");
+        EventValidator.ValidateCreate(
+            dto.Title,
+            dto.Start,
+            dto.End,
+            dto.Description,
+            dto.Location
+        );
 
         var calendar = await _db.Calendars
             .Include(c => c.SharedWith)
             .FirstOrDefaultAsync(c => c.Id == dto.CalendarId);
 
         if (calendar == null)
-            throw new ArgumentException("Kalendář neexistuje.");
+            throw new DomainValidationException("Kalendář neexistuje.");
 
         if (!isAdmin &&
             calendar.OwnerId != userId &&
             !calendar.SharedWith.Any(s =>
                 s.UserId == userId && s.Permission == "edit"))
         {
-            throw new ArgumentException("Nemáš oprávnění vytvářet události v tomto kalendáři.");
+            throw new DomainValidationException(
+                "Nemáš oprávnění vytvářet události v tomto kalendáři."
+            );
         }
-
 
         var ev = new Event
         {
@@ -99,20 +101,20 @@ public class EventService
         await _db.SaveChangesAsync();
     }
 
-
-
-    // === UPDATE UDÁLOSTI ===
     public async Task UpdateAsync(
         UpdateEventDto dto,
         Guid userId,
         bool isAdmin
     )
     {
-        if (string.IsNullOrWhiteSpace(dto.Title))
-            throw new ArgumentException("Název události je povinný.");
 
-        if (dto.End <= dto.Start)
-            throw new ArgumentException("Konec události musí být po začátku.");
+        EventValidator.ValidateCreate(
+            dto.Title,
+            dto.Start,
+            dto.End,
+            dto.Description,
+            dto.Location
+        );
 
         var ev = await _db.Events
             .Include(e => e.Calendar)
@@ -120,14 +122,16 @@ public class EventService
             .FirstOrDefaultAsync(e => e.Id == dto.Id);
 
         if (ev == null)
-            throw new ArgumentException("Událost neexistuje.");
+            throw new DomainValidationException("Událost neexistuje.");
 
         if (!isAdmin &&
             ev.Calendar.OwnerId != userId &&
             !ev.Calendar.SharedWith.Any(s =>
                 s.UserId == userId && s.Permission == "edit"))
         {
-            throw new ArgumentException("Nemáš oprávnění upravit tuto událost.");
+            throw new DomainValidationException(
+                "Nemáš oprávnění upravit tuto událost."
+            );
         }
 
         ev.Title = dto.Title.Trim();
@@ -141,9 +145,6 @@ public class EventService
         await _db.SaveChangesAsync();
     }
 
-
-
-    // === SMAZÁNÍ UDÁLOSTI ===
     public async Task DeleteAsync(
         Guid eventId,
         Guid userId,
@@ -163,11 +164,12 @@ public class EventService
             !ev.Calendar.SharedWith.Any(s =>
                 s.UserId == userId && s.Permission == "edit"))
         {
-            throw new Exception("Nemáš oprávnění mazat tuto událost");
+            throw new DomainValidationException(
+                "Nemáš oprávnění mazat tuto událost."
+            );
         }
 
         _db.Events.Remove(ev);
         await _db.SaveChangesAsync();
     }
-
 }

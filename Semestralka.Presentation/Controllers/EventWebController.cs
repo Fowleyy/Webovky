@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Semestralka.Application.DTOs.Event;
-using Semestralka.Infrastructure.Services;
+using Semestralka.Domain.Exceptions;
 using Semestralka.Infrastructure.Data.Persistence;
+using Semestralka.Infrastructure.Services;
 
 namespace Semestralka.Presentation.Controllers;
 
@@ -12,18 +13,12 @@ public class EventWebController : Controller
     private readonly EventService _eventService;
     private readonly CalendarDbContext _db;
 
-    public EventWebController(
-        EventService eventService,
-        CalendarDbContext db)
+    public EventWebController(EventService eventService, CalendarDbContext db)
     {
         _eventService = eventService;
         _db = db;
     }
 
-    // =========================
-    // LIST
-    // GET /events
-    // =========================
     [HttpGet("")]
     public async Task<IActionResult> List()
     {
@@ -56,25 +51,20 @@ public class EventWebController : Controller
             allEvents.AddRange(events);
         }
 
-        var ordered = allEvents
-            .OrderBy(e => e.Start)
-            .ToList();
-
-        return View(ordered);
+        return View(allEvents.OrderBy(e => e.Start).ToList());
     }
 
     [HttpGet("create/{calendarId}")]
     public IActionResult Create(Guid calendarId)
     {
-        var model = new CreateEventDto
+        ViewBag.Categories = _db.EventCategories.ToList();
+
+        return View(new CreateEventDto
         {
             CalendarId = calendarId,
             Start = DateTimeOffset.Now,
             End = DateTimeOffset.Now.AddHours(1)
-        };
-
-        ViewBag.Categories = _db.EventCategories.ToList();
-        return View(model);
+        });
     }
 
     [HttpPost("create/{calendarId}")]
@@ -85,28 +75,30 @@ public class EventWebController : Controller
         if (uid == null)
             return Redirect("/login");
 
-        dto.CalendarId = calendarId;
         bool isAdmin = HttpContext.Session.GetString("isAdmin") == "1";
+        dto.CalendarId = calendarId;
 
-        if (!ModelState.IsValid)
+        try
         {
+            await _eventService.CreateAsync(
+                dto,
+                Guid.Parse(uid),
+                isAdmin
+            );
+
+            var calendar = await _db.Calendars
+                .AsNoTracking()
+                .FirstAsync(c => c.Id == calendarId);
+
+            return Redirect($"/admin/calendar/{calendar.OwnerId}");
+        }
+        catch (DomainValidationException ex)
+        {
+            ViewBag.Error = ex.Message;
             ViewBag.Categories = _db.EventCategories.ToList();
             return View(dto);
         }
-
-        await _eventService.CreateAsync(
-        dto,
-        Guid.Parse(uid),
-        isAdmin
-    );
-
-    var calendar = await _db.Calendars
-        .AsNoTracking()
-        .FirstAsync(c => c.Id == calendarId);
-
-    return Redirect($"/admin/calendar/{calendar.OwnerId}");
     }
-
 
     [HttpGet("edit/{id}")]
     public async Task<IActionResult> Edit(Guid id)
@@ -134,7 +126,9 @@ public class EventWebController : Controller
             return Forbid();
         }
 
-        var dto = new UpdateEventDto
+        ViewBag.Categories = _db.EventCategories.ToList();
+
+        return View(new UpdateEventDto
         {
             Id = ev.Id,
             Title = ev.Title,
@@ -144,10 +138,7 @@ public class EventWebController : Controller
             Location = ev.Location,
             IsAllDay = ev.IsAllDay,
             CategoryId = ev.CategoryId
-        };
-
-        ViewBag.Categories = _db.EventCategories.ToList();
-        return View(dto);
+        });
     }
 
     [HttpPost("edit")]
@@ -158,34 +149,32 @@ public class EventWebController : Controller
         if (uid == null)
             return Redirect("/login");
 
-        if (!ModelState.IsValid)
-        {
-            ViewBag.Categories = _db.EventCategories.ToList();
-            return View(dto); // 🔥 SERVEROVÁ VALIDACE
-        }
-
-        Guid userId = Guid.Parse(uid);
         bool isAdmin = HttpContext.Session.GetString("isAdmin") == "1";
 
-        var ev = await _db.Events
-            .Include(e => e.Calendar)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == dto.Id);
+        try
+        {
+            await _eventService.UpdateAsync(
+                dto,
+                Guid.Parse(uid),
+                isAdmin
+            );
 
-        if (ev == null)
-            return NotFound();
+            var ev = await _db.Events
+                .AsNoTracking()
+                .Include(e => e.Calendar)
+                .FirstAsync(e => e.Id == dto.Id);
 
-        await _eventService.UpdateAsync(
-            dto,
-            userId,
-            isAdmin
-        );
-
-        return isAdmin
-            ? Redirect($"/admin/calendar/{ev.Calendar.OwnerId}")
-            : Redirect($"/calendar/{ev.CalendarId}");
+            return isAdmin
+                ? Redirect($"/admin/calendar/{ev.Calendar.OwnerId}")
+                : Redirect($"/calendar/{ev.CalendarId}");
+        }
+        catch (DomainValidationException ex)
+        {
+            ViewBag.Error = ex.Message;
+            ViewBag.Categories = _db.EventCategories.ToList();
+            return View(dto);
+        }
     }
-
 
     [HttpGet("delete/{id}")]
     public async Task<IActionResult> Delete(Guid id)
@@ -194,33 +183,14 @@ public class EventWebController : Controller
         if (uid == null)
             return Redirect("/login");
 
-        Guid userId = Guid.Parse(uid);
         bool isAdmin = HttpContext.Session.GetString("isAdmin") == "1";
 
-        // 1️⃣ načti událost
-        var ev = await _db.Events
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == id);
+        await _eventService.DeleteAsync(
+            id,
+            Guid.Parse(uid),
+            isAdmin
+        );
 
-        if (ev == null)
-            return Redirect("/events");
-
-        // 2️⃣ smaž přes service
-        await _eventService.DeleteAsync(id, userId, isAdmin);
-
-        // 3️⃣ načti kalendář KVŮLI OwnerId
-        var calendar = await _db.Calendars
-            .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == ev.CalendarId);
-
-        if (calendar == null)
-            return Redirect("/events");
-
-        // 🔥 4️⃣ redirect VŽDY přes OwnerId
-        if (isAdmin)
-            return Redirect($"/admin/calendar/{calendar.OwnerId}");
-
-        return Redirect($"/calendar/{calendar.OwnerId}");
+        return Redirect("/events");
     }
-
 }

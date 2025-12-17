@@ -33,15 +33,3 @@ C:/Users/Daniel/Documents/GitHub/Webovky/Semestralka.Domain/obj/Debug/net9.0/ref
 /home/daniel/Documents/GitHub/Webovky/Semestralka.Domain/obj/Debug/net9.0/refint/Semestralka.Domain.dll
 /home/daniel/Documents/GitHub/Webovky/Semestralka.Domain/obj/Debug/net9.0/Semestralka.Domain.pdb
 /home/daniel/Documents/GitHub/Webovky/Semestralka.Domain/obj/Debug/net9.0/ref/Semestralka.Domain.dll
-C:\Users\Daniel\Documents\GitHub\Webovky\Semestralka.Domain\bin\Debug\net9.0\Semestralka.Domain.deps.json
-C:\Users\Daniel\Documents\GitHub\Webovky\Semestralka.Domain\bin\Debug\net9.0\Semestralka.Domain.dll
-C:\Users\Daniel\Documents\GitHub\Webovky\Semestralka.Domain\bin\Debug\net9.0\Semestralka.Domain.pdb
-C:\Users\Daniel\Documents\GitHub\Webovky\Semestralka.Domain\obj\Debug\net9.0\Semestralka.Domain.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Daniel\Documents\GitHub\Webovky\Semestralka.Domain\obj\Debug\net9.0\Semestralka.Domain.AssemblyInfoInputs.cache
-C:\Users\Daniel\Documents\GitHub\Webovky\Semestralka.Domain\obj\Debug\net9.0\Semestralka.Domain.AssemblyInfo.cs
-C:\Users\Daniel\Documents\GitHub\Webovky\Semestralka.Domain\obj\Debug\net9.0\Semestralka.Domain.csproj.CoreCompileInputs.cache
-C:\Users\Daniel\Documents\GitHub\Webovky\Semestralka.Domain\obj\Debug\net9.0\Semestralka.Domain.sourcelink.json
-C:\Users\Daniel\Documents\GitHub\Webovky\Semestralka.Domain\obj\Debug\net9.0\Semestralka.Domain.dll
-C:\Users\Daniel\Documents\GitHub\Webovky\Semestralka.Domain\obj\Debug\net9.0\refint\Semestralka.Domain.dll
-C:\Users\Daniel\Documents\GitHub\Webovky\Semestralka.Domain\obj\Debug\net9.0\Semestralka.Domain.pdb
-C:\Users\Daniel\Documents\GitHub\Webovky\Semestralka.Domain\obj\Debug\net9.0\ref\Semestralka.Domain.dll

@@ -4,89 +4,85 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Semestralka.Domain.Entities;
+using Semestralka.Domain.Exceptions;
 using Semestralka.Infrastructure.Services;
 using Semestralka.Presentation.Models.DTOs;
 
-namespace Semestralka.Presentation.Controllers
+namespace Semestralka.Presentation.Controllers;
+
+[ApiController]
+[Route("api/auth")]
+public class AuthController : ControllerBase
 {
-    [ApiController]
-    [Route("api/auth")]
-    public class AuthController : ControllerBase
+    private readonly AuthService _authService;
+
+    public AuthController(AuthService authService)
     {
-        private readonly AuthService _authService;
+        _authService = authService;
+    }
 
-        public AuthController(AuthService authService)
+    private const string JwtKey =
+        "THIS_IS_THE_FINAL_TEST_KEY_1234567890_ABCDEF_0987654321";
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(RegisterDto dto)
+    {
+        try
         {
-            _authService = authService;
+            await _authService.RegisterAsync(dto);
+            return Ok();
         }
-
-        private const string JwtKey = "THIS_IS_THE_FINAL_TEST_KEY_1234567890_ABCDEF_0987654321";
-
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+        catch (DomainValidationException ex)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                await _authService.RegisterAsync(dto);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            return BadRequest(new { message = ex.Message });
         }
+    }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto dto)
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(LoginDto dto)
+    {
+        try
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var user = await _authService.LoginAsync(dto);
 
-            try
-            {
-                var user = await _authService.LoginAsync(dto);
+            var token = GenerateToken(user);
 
-                var token = GenerateToken(user);
+            HttpContext.Session.SetString("userid", user.Id.ToString());
+            HttpContext.Session.SetString("email", user.Email ?? "");
+            HttpContext.Session.SetString("fullname", user.FullName ?? "Uživatel");
+            HttpContext.Session.SetString("isAdmin", user.IsAdmin ? "1" : "0");
 
-                HttpContext.Session.SetString("userid", user.Id.ToString());
-                HttpContext.Session.SetString("email", user.Email ?? "");
-                HttpContext.Session.SetString("fullname", user.FullName ?? "Uživatel");
-
-                return Ok(new { token });
-            }
-            catch (Exception ex)
-            {
-                return Unauthorized(new { message = ex.Message });
-            }
+            return Ok(new { token });
         }
-
-        private string GenerateToken(User user)
+        catch (DomainValidationException ex)
         {
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(JwtKey)
-            );
-
-            var creds = new SigningCredentials(
-                key,
-                SecurityAlgorithms.HmacSha256
-            );
-
-            var claims = new[]
-            {
-                new Claim("userid", user.Id.ToString()),
-                new Claim("email", user.Email!)
-            };
-
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(8),
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return Unauthorized(new { message = ex.Message });
         }
+    }
+
+    private string GenerateToken(User user)
+    {
+        var key = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(JwtKey)
+        );
+
+        var creds = new SigningCredentials(
+            key,
+            SecurityAlgorithms.HmacSha256
+        );
+
+        var claims = new[]
+        {
+            new Claim("userid", user.Id.ToString()),
+            new Claim("email", user.Email!)
+        };
+
+        var token = new JwtSecurityToken(
+            claims: claims,
+            expires: DateTime.UtcNow.AddHours(8),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Semestralka.Domain.Exceptions;
 using Semestralka.Infrastructure.Services;
 using Semestralka.Application.DTOs.Event;
 
@@ -44,51 +45,53 @@ public class EventsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateEventDto dto)
+    public async Task<IActionResult> Create(CreateEventDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState); // 🔥 SERVEROVÁ VALIDACE
-
         var uid = HttpContext.Session.GetString("userid");
         if (uid == null)
             return Unauthorized();
 
         bool isAdmin = HttpContext.Session.GetString("isAdmin") == "1";
 
-        if (dto.End < dto.Start)
-            return BadRequest("Konec události nesmí být dříve než začátek.");
+        try
+        {
+            await _eventService.CreateAsync(
+                dto,
+                Guid.Parse(uid),
+                isAdmin
+            );
 
-        await _eventService.CreateAsync(
-            dto,
-            Guid.Parse(uid),
-            isAdmin
-        );
-
-        return Ok();
+            return Ok();
+        }
+        catch (DomainValidationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] UpdateEventDto dto)
+    public async Task<IActionResult> Update(UpdateEventDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var uid = HttpContext.Session.GetString("userid");
         if (uid == null)
             return Unauthorized();
 
         bool isAdmin = HttpContext.Session.GetString("isAdmin") == "1";
 
-        if (dto.End < dto.Start)
-            return BadRequest("Konec události nesmí být dříve než začátek.");
+        try
+        {
+            await _eventService.UpdateAsync(
+                dto,
+                Guid.Parse(uid),
+                isAdmin
+            );
 
-        await _eventService.UpdateAsync(
-            dto,
-            Guid.Parse(uid),
-            isAdmin
-        );
-
-        return Ok();
+            return Ok();
+        }
+        catch (DomainValidationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpDelete("{id}")]
@@ -100,12 +103,19 @@ public class EventsController : ControllerBase
 
         bool isAdmin = HttpContext.Session.GetString("isAdmin") == "1";
 
-        await _eventService.DeleteAsync(
-            id,
-            Guid.Parse(uid),
-            isAdmin
-        );
+        try
+        {
+            await _eventService.DeleteAsync(
+                id,
+                Guid.Parse(uid),
+                isAdmin
+            );
 
-        return Ok();
+            return Ok();
+        }
+        catch (DomainValidationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }

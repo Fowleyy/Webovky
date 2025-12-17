@@ -1,65 +1,65 @@
 using Microsoft.AspNetCore.Mvc;
 using Semestralka.Application.DTOs.Calendar;
+using Semestralka.Domain.Exceptions;
 using Semestralka.Infrastructure.Services;
 
-namespace Semestralka.Presentation.Controllers
+namespace Semestralka.Presentation.Controllers;
+
+public class CalendarController : Controller
 {
-    public class CalendarController : Controller
+    private readonly CalendarService _calendarService;
+
+    public CalendarController(CalendarService calendarService)
     {
-        private readonly CalendarService _calendarService;
+        _calendarService = calendarService;
+    }
 
-        public CalendarController(CalendarService calendarService)
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateCalendarDto dto)
+    {
+        var userIdStr = HttpContext.Session.GetString("userid");
+        if (string.IsNullOrEmpty(userIdStr))
+            return RedirectToAction("Login", "Account");
+
+        var userId = Guid.Parse(userIdStr);
+
+        try
         {
-            _calendarService = calendarService;
+            await _calendarService.CreateIfNotExistsAsync(userId);
+            return RedirectToAction("Index", "Home");
         }
-
-        [HttpPost]
-        public async Task<IActionResult> Create(CreateCalendarDto dto)
+        catch (DomainValidationException ex)
         {
-            var userIdStr = HttpContext.Session.GetString("userid");
-            if (string.IsNullOrEmpty(userIdStr))
-                return RedirectToAction("Login", "Auth");
-
-            var userId = Guid.Parse(userIdStr);
-
-            try
-            {
-                await _calendarService.CreateIfNotExistsAsync(userId);
-                return RedirectToAction("Index", "Home");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return BadRequest(ex.Message);
         }
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> Update(UpdateCalendarDto dto)
+    [HttpPost]
+    public async Task<IActionResult> Update(UpdateCalendarDto dto)
+    {
+        var userIdStr = HttpContext.Session.GetString("userid");
+        if (string.IsNullOrEmpty(userIdStr))
+            return RedirectToAction("Login", "Account");
+
+        var userId = Guid.Parse(userIdStr);
+
+        try
         {
-            var userIdStr = HttpContext.Session.GetString("userid");
-            if (string.IsNullOrEmpty(userIdStr))
-                return RedirectToAction("Login", "Auth");
-
-            var userId = Guid.Parse(userIdStr);
-
-            try
+            if (!string.IsNullOrWhiteSpace(dto.Color))
             {
-                if (!string.IsNullOrEmpty(dto.Color))
-                {
-                    await _calendarService.UpdateColorAsync(userId, dto.Color);
-                }
-
-                if (!string.IsNullOrEmpty(dto.Visibility))
-                {
-                    await _calendarService.UpdateVisibilityAsync(userId, dto.Visibility);
-                }
-
-                return RedirectToAction("Index", "Home");
+                await _calendarService.UpdateColorAsync(userId, dto.Color);
             }
-            catch (Exception ex)
+
+            if (!string.IsNullOrWhiteSpace(dto.Visibility))
             {
-                return BadRequest(ex.Message);
+                await _calendarService.UpdateVisibilityAsync(userId, dto.Visibility);
             }
+
+            return RedirectToAction("Index", "Home");
+        }
+        catch (DomainValidationException ex)
+        {
+            return BadRequest(ex.Message);
         }
     }
 }

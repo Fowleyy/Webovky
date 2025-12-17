@@ -1,17 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Semestralka.Domain.Entities;
-using Semestralka.Infrastructure.Data.Persistence;
+using Semestralka.Domain.Exceptions;
+using Semestralka.Infrastructure.Services;
+using Semestralka.Presentation.Models.DTOs;
 
 namespace Semestralka.Presentation.Controllers;
 
 public class AccountController : Controller
 {
-    private readonly CalendarDbContext _db;
+    private readonly AuthService _authService;
 
-    public AccountController(CalendarDbContext db)
+    public AccountController(AuthService authService)
     {
-        _db = db;
+        _authService = authService;
     }
 
     [HttpGet("/login")]
@@ -24,72 +24,44 @@ public class AccountController : Controller
     }
 
     [HttpPost("/login")]
-    public async Task<IActionResult> LoginPost(string email, string password)
+    public async Task<IActionResult> Login(LoginDto dto)
     {
-        var user = await _db.Users.FirstOrDefaultAsync(x => x.Email == email);
-
-        if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+        try
         {
-            ViewData["Error"] = "Špatný email nebo heslo.";
-            return View("Login");
+            var user = await _authService.LoginAsync(dto);
+
+            HttpContext.Session.SetString("userid", user.Id.ToString());
+            HttpContext.Session.SetString("email", user.Email ?? "");
+            HttpContext.Session.SetString("fullname", user.FullName ?? "Uživatel");
+            HttpContext.Session.SetString("avatar", user.AvatarPath ?? "/avatars/default.png");
+            HttpContext.Session.SetString("isAdmin", user.IsAdmin ? "1" : "0");
+
+            return Redirect("/");
         }
-
-        HttpContext.Session.SetString("userid", user.Id.ToString());
-        HttpContext.Session.SetString("email", user.Email ?? "");
-        HttpContext.Session.SetString("fullname", user.FullName ?? "Uživatel");
-        HttpContext.Session.SetString("avatar", user.AvatarPath ?? "/avatars/default.png");
-        HttpContext.Session.SetString("isAdmin", user.IsAdmin ? "1" : "0");
-
-        return Redirect("/");
+        catch (DomainValidationException ex)
+        {
+            ViewData["Error"] = ex.Message;
+            return View();
+        }
     }
 
     [HttpGet("/register")]
     public IActionResult Register() => View();
 
     [HttpPost("/register")]
-    public async Task<IActionResult> RegisterPost(string fullname, string email, string password)
+    public async Task<IActionResult> Register(RegisterDto dto)
     {
-        if (string.IsNullOrWhiteSpace(fullname) ||
-            string.IsNullOrWhiteSpace(email) ||
-            string.IsNullOrWhiteSpace(password))
+        try
         {
-            ViewData["Error"] = "Vyplňte všechna pole.";
-            return View("Register");
+            await _authService.RegisterAsync(dto);
+
+            return Redirect("/login");
         }
-
-        email = email.Trim().ToLower();
-
-        if (password.Length < 6)
+        catch (DomainValidationException ex)
         {
-            ViewData["Error"] = "Heslo musí mít alespoň 6 znaků.";
-            return View("Register");
+            ViewData["Error"] = ex.Message;
+            return View();
         }
-
-        if (await _db.Users.AnyAsync(x => x.Email == email))
-        {
-            ViewData["Error"] = "Účet s tímto emailem již existuje.";
-            return View("Register");
-        }
-
-        var user = new User
-        {
-            Id = Guid.NewGuid(),
-            FullName = fullname,
-            Email = email,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
-            AvatarPath = "/avatars/default.png",
-            IsAdmin = false
-        };
-
-        _db.Users.Add(user);
-        await _db.SaveChangesAsync();
-
-        HttpContext.Session.SetString("userid", user.Id.ToString());
-        HttpContext.Session.SetString("email", user.Email);
-        HttpContext.Session.SetString("fullname", user.FullName ?? "Uživatel");
-        HttpContext.Session.SetString("avatar", user.AvatarPath);
-
-        return Redirect("/");
     }
 
     [HttpGet("/logout")]

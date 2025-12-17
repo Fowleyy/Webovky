@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Semestralka.Domain.Entities;
+using Semestralka.Domain.Exceptions;
+using Semestralka.Domain.Validations;
 using Semestralka.Infrastructure.Data.Persistence;
 using Semestralka.Presentation.Models.DTOs;
 
@@ -18,11 +20,15 @@ namespace Semestralka.Infrastructure.Services
         {
             var email = dto.Email.Trim().ToLower();
 
-            if (await _db.Users.AnyAsync(x => x.Email == email))
-                throw new Exception("Email už existuje");
+            UserValidator.ValidateRegister(
+                email,
+                dto.Password,
+                dto.FullName!,
+                dto.TimeZone
+            );
 
-            if (dto.Password == null || dto.Password.Length < 6)
-                throw new Exception("Heslo musí mít alespoň 6 znaků");
+            if (await _db.Users.AnyAsync(x => x.Email == email))
+                throw new DomainValidationException("Email už existuje.");
 
             var user = new User
             {
@@ -41,9 +47,12 @@ namespace Semestralka.Infrastructure.Services
         {
             var email = dto.Email.Trim().ToLower();
 
+            UserValidator.ValidateLogin(email, dto.Password);
+
             var user = await _db.Users.SingleOrDefaultAsync(x => x.Email == email);
+
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-                throw new Exception("Neplatné přihlašovací údaje");
+                throw new DomainValidationException("Neplatné přihlašovací údaje.");
 
             return user;
         }
