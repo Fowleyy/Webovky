@@ -7,11 +7,17 @@ public class CalendarShare
     [Key]
     public Guid Id { get; set; }
 
+    [Required]
     public Guid CalendarId { get; set; }
+
     public Calendar? Calendar { get; set; }
 
+    [Required]
     public Guid UserId { get; set; }
+
     public User? User { get; set; }
 
+    [Required]
+    [RegularExpression("read|write", ErrorMessage = "Oprávnění musí být read nebo write")]
     public string Permission { get; set; } = "read";
 }

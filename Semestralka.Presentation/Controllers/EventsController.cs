@@ -43,62 +43,54 @@ public class EventsController : ControllerBase
         }));
     }
 
-
-    // === CREATE EVENT ===
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateEventDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState); // 🔥 SERVEROVÁ VALIDACE
+
         var uid = HttpContext.Session.GetString("userid");
         if (uid == null)
             return Unauthorized();
 
         bool isAdmin = HttpContext.Session.GetString("isAdmin") == "1";
 
-        try
-        {
-            await _eventService.CreateAsync(
-                dto,
-                Guid.Parse(uid),
-                isAdmin
-            );
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+        if (dto.End < dto.Start)
+            return BadRequest("Konec události nesmí být dříve než začátek.");
+
+        await _eventService.CreateAsync(
+            dto,
+            Guid.Parse(uid),
+            isAdmin
+        );
 
         return Ok();
     }
 
-
-    // === UPDATE EVENT ===
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateEventDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var uid = HttpContext.Session.GetString("userid");
         if (uid == null)
             return Unauthorized();
 
         bool isAdmin = HttpContext.Session.GetString("isAdmin") == "1";
 
-        try
-        {
-            await _eventService.UpdateAsync(
-                dto,
-                Guid.Parse(uid),
-                isAdmin
-            );
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+        if (dto.End < dto.Start)
+            return BadRequest("Konec události nesmí být dříve než začátek.");
+
+        await _eventService.UpdateAsync(
+            dto,
+            Guid.Parse(uid),
+            isAdmin
+        );
 
         return Ok();
     }
 
-
-    // === DELETE EVENT ===
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {

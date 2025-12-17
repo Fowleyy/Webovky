@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Semestralka.Application.DTOs.Event;
 
-public class UpdateEventDto
+public class UpdateEventDto : IValidatableObject
 {
     [Required]
     public Guid Id { get; set; }
@@ -20,9 +20,21 @@ public class UpdateEventDto
     [Required]
     public DateTimeOffset End { get; set; }
 
+    [StringLength(200)]
     public string? Location { get; set; }
 
     public bool IsAllDay { get; set; }
 
     public Guid? CategoryId { get; set; }
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (End < Start)
+        {
+            yield return new ValidationResult(
+                "Konec události nesmí být dříve než začátek",
+                new[] { nameof(End) }
+            );
+        }
+    }
 }

@@ -158,6 +158,12 @@ public class EventWebController : Controller
         if (uid == null)
             return Redirect("/login");
 
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Categories = _db.EventCategories.ToList();
+            return View(dto); // 🔥 SERVEROVÁ VALIDACE
+        }
+
         Guid userId = Guid.Parse(uid);
         bool isAdmin = HttpContext.Session.GetString("isAdmin") == "1";
 
@@ -175,13 +181,11 @@ public class EventWebController : Controller
             isAdmin
         );
 
-        if (isAdmin)
-        {
-            return Redirect($"/admin/calendar/{ev.Calendar.OwnerId}");
-        }
-
-        return Redirect($"/calendar/{ev.CalendarId}");
+        return isAdmin
+            ? Redirect($"/admin/calendar/{ev.Calendar.OwnerId}")
+            : Redirect($"/calendar/{ev.CalendarId}");
     }
+
 
     [HttpGet("delete/{id}")]
     public async Task<IActionResult> Delete(Guid id)
